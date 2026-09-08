@@ -71,6 +71,16 @@ if [[ -n "$CARAOKE_WORKSPACE" ]]; then
     exit 2
   }
 
+  # caraoke's branch convention is QCT-XXXX-short-kebab (slash-free). A slashed
+  # branch would nest under worktrees/<repo>/ and desync the reconstructed dest
+  # from caraoke's actual worktree path, producing a false "not created" failure.
+  case "$BRANCH" in
+    */*)
+      echo "caraoke backend: branch must be slash-free (QCT-XXXX-short-kebab): $BRANCH" >&2
+      exit 2
+      ;;
+  esac
+
   command -v make >/dev/null || { echo "make is required for the caraoke backend" >&2; exit 1; }
 
   WORKSPACE="$(cd "$CARAOKE_WORKSPACE" && pwd)" || {

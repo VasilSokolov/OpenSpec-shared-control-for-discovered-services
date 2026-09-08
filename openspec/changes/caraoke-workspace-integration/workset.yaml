@@ -1,6 +1,25 @@
 change_id: caraoke-workspace-integration
-approved_revision: ""
+approved_revision: d245f78
 scope: control-plane-tooling-and-integration-seam
+
+capabilities_detected:
+  - shell-tooling
+  - control-plane-integration-seam
+# Live scan of the affected modules found only shell/tooling (no next.config,
+# pom.xml, build.gradle, playwright, Helm/K8s/Terraform, auth, PII, or
+# observability). No conditional mde-* skill gate triggers; only always +
+# always_skills apply.
+
+agents_invoked:
+  - agent: infra-reviewer
+    phase: quality
+    invoked_at: 2026-09-08
+    finding_severity: should-fix (no BLOCKER)
+    outcome: "SAFE verdict. Finding 1 (slashed-branch dest desync) fixed;
+      findings 2 and 4 deferred to follow-up caraoke-ref-layout-confirmation;
+      finding 3 pre-existing and out of scope."
+    evidence: context/evidence/task-results/infra-review.md
+
 work_items:
   - id: decisions-and-preconditions
     repository_id: openspec-shared-control-for-discovered-services
@@ -10,7 +29,8 @@ work_items:
     branch: ""
     depends_on: []
     agent: ""
-    status: proposed
+    status: implemented
+    commit: d245f78
 
   - id: worktree-provisioning-seam
     repository_id: openspec-shared-control-for-discovered-services
@@ -20,8 +40,9 @@ work_items:
     branch: ""
     depends_on:
       - decisions-and-preconditions
-    agent: ""
-    status: proposed
+    agent: infra-reviewer
+    status: implemented
+    commit: ad3f8cc
 
   - id: runtime-bootstrap-into-worktree
     repository_id: openspec-shared-control-for-discovered-services
@@ -31,8 +52,9 @@ work_items:
     branch: ""
     depends_on:
       - worktree-provisioning-seam
-    agent: ""
-    status: proposed
+    agent: infra-reviewer
+    status: implemented
+    commit: ad3f8cc
 
   - id: toolchain-adapter
     repository_id: openspec-shared-control-for-discovered-services
@@ -43,7 +65,8 @@ work_items:
     depends_on:
       - runtime-bootstrap-into-worktree
     agent: ""
-    status: proposed
+    status: implemented
+    commit: ad3f8cc
 
   - id: discovery-alignment-and-docs
     repository_id: openspec-shared-control-for-discovered-services
@@ -54,7 +77,23 @@ work_items:
     depends_on:
       - toolchain-adapter
     agent: ""
-    status: proposed
+    status: implemented
+    commit: ad3f8cc
+
+  - id: caraoke-ref-layout-confirmation
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: tools/router/create-worktree.sh
+    description: "Follow-up (deferred from infra-review findings 2 & 4): confirm the
+      existing-branch ref namespace (refs/heads vs refs/remotes/origin) against
+      caraoke's actual clone mode + make fetch refspec, and emit the validated
+      `git rev-parse --show-toplevel` toplevel instead of the reconstructed dest.
+      Requires access to caraoke-workspace internals to verify."
+    worktree: ""
+    branch: ""
+    depends_on:
+      - worktree-provisioning-seam
+    agent: ""
+    status: deferred
 
 caraoke_workspace:
   local_path: ../Mobile-de/caraoke-workspace
