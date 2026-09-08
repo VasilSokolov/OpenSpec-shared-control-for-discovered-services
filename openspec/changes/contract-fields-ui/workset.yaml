@@ -1,0 +1,94 @@
+change_id: contract-fields-ui
+approved_revision: "dddb6f6"
+scope: seller-section-only
+work_items:
+  - id: scope-and-source-validation
+    repository_id: ps-contract-node
+    module_id: src/app/digitalcontract/_components/contract
+    description: "Reconcile Jira scope, validate Figma node 12234-58435, and produce seller-only evidence"
+    worktree: "completed-in-propose"
+    depends_on: []
+    agent: "udhayam-paneerselvam-ext"
+    status: completed
+    completed_at: "2026-09-05"
+
+  - id: seller-section-ui
+    repository_id: ps-contract-node
+    module_id: src/app/digitalcontract/_components/contract/components/sections/PartySection.tsx
+    description: "Implement the approved Verkäufer section only"
+    worktree: /Users/udhayampaneerselvam/Talentship/Projects/Mobile.de/mobile/ps-contract-node
+    branch: QCT-4690-Update-contract-field-section-with-new-UI-UX
+    commit: 5eb6dff6962a58f3dcbb893a4614917e6f5ba5c4
+    depends_on:
+      - scope-and-source-validation
+    agent: "udhayam-paneerselvam-ext"
+    status: implemented
+    claimed_at: "2026-09-05"
+    implemented_at: "2026-09-05"
+    capabilities_detected:
+      - mobile-frontend
+      - mobile-security-gdpr
+      - mobile-api-contract
+      - code-nodejs
+      - code-schema-validation
+      - code-testing-playwright
+      - code-css-modules
+    required_agents:
+      architecture:
+        - nextjs-developer
+        - react-specialist
+        - architect-reviewer
+        - typescript-pro
+        - design-bridge
+      quality:
+        - refactoring-specialist
+        - code-reviewer
+        - accessibility-tester
+        - performance-engineer
+        - ui-ux-tester
+        - dependency-manager
+      validation:
+        - test-automator
+        - qa-expert
+    agents_invoked:
+      - nextjs-developer
+      - architect-reviewer
+      - test-automator
+      - ui-ux-tester
+      - code-reviewer
+      - react-specialist
+      - typescript-pro
+      - refactoring-specialist
+      - accessibility-tester
+      - performance-engineer
+      - dependency-manager
+      - design-bridge
+      - qa-expert
+
+  - id: seller-schema-and-mapping
+    repository_id: ps-contract-node
+    module_id: src/app/digitalcontract/_components/contract/contract.schema.ts
+    description: "Update seller validation and seller mapping only"
+    worktree: ""
+    depends_on:
+      - seller-section-ui
+    agent: ""
+
+  - id: seller-translations
+    repository_id: ps-contract-node
+    module_id: src/app/digitalcontract
+    description: "Apply seller translation keys from the local reference"
+    worktree: ""
+    depends_on:
+      - seller-section-ui
+    agent: ""
+
+  - id: seller-validation
+    repository_id: ps-contract-node
+    module_id: src/app/digitalcontract/_components/contract
+    description: "Run seller tests, build, web/mweb verification, and scope guard"
+    worktree: ""
+    depends_on:
+      - seller-schema-and-mapping
+      - seller-translations
+    agent: ""

@@ -1,0 +1,22 @@
+integration_id: jira
+transport: mcp
+fetch_tool: fetch_jira_ticket
+ticket_id_argument: ticketId
+optional_arguments:
+  token:
+    source: environment
+    variable: JIRA_PAT
+    never_persist: true
+  baseUrl:
+    source: environment
+    variable: JIRA_BASE_URL
+    never_persist: true
+known_ticket_supported: true
+current_user_active_ticket_listing:
+  supported: false
+  required_tool: <jira-search-tool>
+fallbacks:
+  - pasted_jira_text
+  - uploaded_screenshot
+sanitized_output: context/intake/jira.json
+normalized_output: context/intake/work-item.yaml

@@ -1,0 +1,24 @@
+{
+  "name": "mde-meta",
+  "version": "1.0.4",
+  "description": "Agent coordination and meta-programming - multi-agent orchestration, workflow automation, and safe refactor governance. Works best with other mobile-de plugins installed.",
+  "author": {
+    "name": "Mobile.de Community",
+    "url": "https://www.mobile.de"
+  },
+  "repository": "internal://mde-agent-library",
+  "license": "MIT",
+  "agents": [
+    "./agent-installer.md",
+    "./agent-organizer.md",
+    "./codebase-orchestrator.md",
+    "./context-manager.md",
+    "./error-coordinator.md",
+    "./it-ops-orchestrator.md",
+    "./knowledge-synthesizer.md",
+    "./multi-agent-coordinator.md",
+    "./performance-monitor.md",
+    "./task-distributor.md",
+    "./workflow-orchestrator.md"
+  ]
+}

@@ -1,0 +1,48 @@
+discovered_at: "2026-09-08"
+query: "openspec control plane worktree provisioning execution substrate caraoke integration"
+
+repositories:
+  - id: openspec-shared-control-for-discovered-services
+    org: VasilSokolov
+    url: https://github.com/VasilSokolov/OpenSpec-shared-control-for-discovered-services
+    role: primary
+    languages: [bash, yaml]
+    build: "tools/validate-control-repo.sh"
+    test: "tools/validate-change-package.sh --change <change-dir>"
+    affected_modules:
+      - path: tools/router/create-worktree.sh
+        description: Opt-in caraoke worktree-new delegation backend
+      - path: tools/bootstrap-code-repo.sh
+        description: Bootstrap runtime bundle into a caraoke worktree (documented usage; no code change required)
+      - path: openspec/repository-catalog.yaml
+        description: Record repository_id -> caraoke REPO mapping
+      - path: openspec/project.md
+        description: Document the control <-> caraoke seam and orchestration altitude
+      - path: README.md
+        description: Seam runbook
+
+  - id: caraoke-workspace
+    org: mobile-de-incubation
+    url: https://github.mpi-internal.com/mobile-de-incubation/caraoke-workspace
+    local_path: ../Mobile-de/caraoke-workspace
+    role: execution-substrate
+    languages: [make, bash]
+    modified: false
+    integration_surface:
+      - "make fetch"
+      - "make worktree-new REPO=<repo> BRANCH=<branch>"
+      - "make path"
+      - "run <cmd>"
+      - "make toolchain REPO=<repo>"
+    worktree_layout: worktrees/<repo>/<branch>
+    branch_convention: QCT-XXXX-short-kebab
+    discovery_topics:
+      - owned-by-mob-team-caraoke
+      - owned-by-mob-team-swifty
+
+dependency_notes:
+  - "Seam already exists: bootstrap-code-repo.sh installs into an arbitrary code-repo path and writes .openspec-workspace.yaml with MDE_CONTROL_ROOT."
+  - "caraoke targets github.mpi-internal.com; control scripts are remote-agnostic. Requires gh authenticated to the GHE host."
+  - "Control discovery (mob-code-search MCP) and caraoke discovery (gh search repos --topic) cover the same repository universe via different mechanisms."
+  - "caraoke-workspace is NOT modified; it is invoked through existing public Makefile targets only."
+  - "No product-code change and no backend/API change in scope."

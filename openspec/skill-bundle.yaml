@@ -1,0 +1,15 @@
+bundle_id: mde-skill-bundle
+bundle_version: 0.1.0
+source_revision: control-repository-head
+preflight_required: true
+common_skills:
+  - mde-openspec-core
+  - mde-git-preflight
+  - mde-repository-discovery
+  - mde-dependency-analysis
+  - mde-multi-repository-router
+  - mde-task-coordination
+  - mde-approval-policy
+  - mde-validation
+selected_skills_are_discovered: true
+permissions_are_explicit: true

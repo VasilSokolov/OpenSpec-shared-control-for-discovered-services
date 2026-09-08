@@ -1,0 +1,53 @@
+key: none
+title: "Integrate caraoke-workspace as the execution / worktree provider under the OpenSpec control plane"
+change_id: caraoke-workspace-integration
+issue_type: Internal-Change
+status: Proposed
+priority: P3
+reporter: Vasil Sokolov
+assignee: Vasil Sokolov
+labels:
+  - internal-tooling
+  - architecture
+  - openspec-control-plane
+source: internal
+source_timestamp: "2026-09-08T00:00:00Z"
+
+description: |
+  Wire caraoke-workspace (multi-repo checkout + toolchain substrate) underneath
+  this OpenSpec control plane, without merging the repositories. Control stays
+  the outer governance loop (/opsx:*); caraoke stays the inner execution
+  substrate it invokes. The seam reuses tools/bootstrap-code-repo.sh against a
+  caraoke worktree path and runs build/test through caraoke's `run` wrapper.
+
+acceptance_criteria:
+  - A governed change can obtain a real, buildable worktree per affected repository from caraoke-workspace
+  - The pinned opsx runtime bundle is bootstrapped into a caraoke worktree with a pointer back to this control repo
+  - apply/verify run build and test through caraoke's run wrapper from inside the worktree
+  - The two repositories remain separate; caraoke is invoked only through existing public Makefile targets
+  - Both preflights remain fetch-only (never reset/rebase/overwrite)
+
+scope:
+  in:
+    - Control-plane router worktree-provisioning seam (opt-in caraoke delegation)
+    - Bootstrap of the runtime bundle into a caraoke worktree
+    - Toolchain adapter via caraoke `run`
+    - Discovery mapping (repository_id -> caraoke REPO) and documentation
+  out:
+    - Merging caraoke-workspace and this control repository
+    - Changing caraoke's Makefile, skills, or orchestration model
+    - Any product-feature change in a governed service
+    - CI / GitHub Actions wiring (deferred to a later change)
+
+design_source:
+  present: false
+  note: "No Figma / visual design source. Internal tooling and architecture change."
+
+scope_reconciliation:
+  current_scope: "control-plane tooling and the control <-> caraoke integration seam only"
+  raw_jira_scope: "none — no Jira ticket"
+  raw_jira_acceptance_preserved_at: "context/intake/jira.json"
+  requires_ba_confirmation: false
+
+links: []
+components: []

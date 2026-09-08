@@ -1,0 +1,70 @@
+change_id: caraoke-workspace-integration
+approved_revision: ""
+scope: control-plane-tooling-and-integration-seam
+work_items:
+  - id: decisions-and-preconditions
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: openspec/changes/caraoke-workspace-integration
+    description: "Confirm seam altitude, worktree ownership, naming mapping, and GHE/tooling preconditions"
+    worktree: ""
+    branch: ""
+    depends_on: []
+    agent: ""
+    status: proposed
+
+  - id: worktree-provisioning-seam
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: tools/router/create-worktree.sh
+    description: "Add opt-in caraoke `make worktree-new` delegation backend to the router"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - decisions-and-preconditions
+    agent: ""
+    status: proposed
+
+  - id: runtime-bootstrap-into-worktree
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: tools/bootstrap-code-repo.sh
+    description: "Bootstrap the pinned runtime bundle into a caraoke worktree with MDE_CONTROL_ROOT"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - worktree-provisioning-seam
+    agent: ""
+    status: proposed
+
+  - id: toolchain-adapter
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: openspec/project.md
+    description: "Run apply/verify build and test through caraoke `run` from inside the worktree"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - runtime-bootstrap-into-worktree
+    agent: ""
+    status: proposed
+
+  - id: discovery-alignment-and-docs
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: README.md
+    description: "Document discovery universe alignment, repository_id -> caraoke REPO mapping, and the seam runbook"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - toolchain-adapter
+    agent: ""
+    status: proposed
+
+caraoke_workspace:
+  local_path: ../Mobile-de/caraoke-workspace
+  remote_host: github.mpi-internal.com
+  orgs:
+    - mobile-de
+    - mobile-de-incubation
+  discovery_topics:
+    - owned-by-mob-team-caraoke
+    - owned-by-mob-team-swifty
+  worktree_layout: worktrees/<repo>/<branch>
+  branch_convention: QCT-XXXX-short-kebab
+  toolchain_wrapper: run

@@ -1,0 +1,20 @@
+integration_id: mob-code-search
+transport: mcp
+required_tools:
+  - mcs_system_status
+  - mcs_list_indexed_repos
+  - mcs_search
+  - mcs_find_symbol
+  - mcs_read_symbol
+  - mcs_file_outline
+  - mcs_ask
+discovery_outputs:
+  repository_map: context/discovery/repository-map.json
+  dependency_report: context/discovery/dependency-report.md
+  dependency_graph: context/discovery/dependency-graph.json
+  repository_analysis: context/discovery/repository-analysis/
+freshness:
+  run_before: [propose, apply, verify, sync, archive]
+approval_policy:
+  unknown_repository: engineering-review-required
+  unknown_dependency: engineering-review-required

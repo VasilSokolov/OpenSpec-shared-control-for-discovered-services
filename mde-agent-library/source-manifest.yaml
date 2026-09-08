@@ -1,0 +1,16 @@
+library_id: mde-agent-library
+source_url: https://github.com/VoltAgent/awesome-claude-code-subagents
+source_commit: beb9a0f0d74a222f5e24aeb390e6d7c3005d9e27
+imported_at: 2026-09-05
+license_file: LICENSE
+license: MIT
+snapshot_policy: complete-source-tree
+runtime_policy: local-only
+adaptations:
+  - Rename runtime plugin and agent identifiers to Mobile.de names.
+  - Remove runtime network downloads and use the pinned local source tree.
+  - Replace external installer behavior with control-repository bootstrap.
+  - Add Mobile.de skill selection and permission manifests.
+  - Preserve upstream license and provenance information.
+snapshot_file_count: 194
+snapshot_sha256: 44be9ae361e71c68bf9eae4fbb495a749dfe8cf6dc08f6afc264d2fe295754ab

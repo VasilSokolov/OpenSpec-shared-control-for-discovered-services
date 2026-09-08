@@ -1,0 +1,598 @@
+# capability-skill-matrix.yaml
+#
+# PURPOSE
+# -------
+# This is a capability CATALOG, not a fixed routing table.
+# It answers the question: "Given that capability X is detected in a
+# repository/module, which agents and mde-skills must run before any code
+# is written for that module?"
+#
+# DYNAMIC SELECTION PROTOCOL (aligned with skill-bundle.yaml)
+# -----------------------------------------------------------
+# skill-bundle.yaml declares: selected_skills_are_discovered: true
+#
+# At runtime, /opsx:apply:
+#   1. Reads the task's repository_id and module_id from the workset.
+#   2. Loads the repository's capabilities from openspec/repository-catalog.yaml
+#      (populated by mob-code-search discovery during /opsx:propose).
+#   3. Performs a live scan: file patterns, package.json/pom.xml/build.gradle
+#      dependencies, and environment manifests.
+#   4. Merges catalog capabilities with live-detected capabilities.
+#   5. For every detected capability, loads ALL agents and mde-skills listed
+#      in this file.
+#   6. Deduplicates: if refactoring-specialist appears in two capabilities,
+#      it still runs once.
+#   7. Invokes agents in phase order: architecture → implementation → quality
+#      → validation.
+#   8. Records every invoked agent and skill in workset.yaml agents_invoked[].
+#   9. Blocks commit until all agents complete and all blockers are resolved.
+#
+# No capability is assumed from the current shell directory.
+# No repository name or module name is hardcoded in this file.
+# Detection evidence is saved to context/discovery/ for every task.
+#
+# AGENT NAMING
+# ------------
+# Short names map to mde-agent-library/categories/<category>/<name>.md
+# mde-skills map to .claude/skills/mde-<skill>/SKILL.md
+
+# ═══════════════════════════════════════════════════════════════════
+# MOBILE.DE PLATFORM CAPABILITIES
+# Prefixed mobile-* to distinguish from generic code capabilities.
+# ═══════════════════════════════════════════════════════════════════
+
+capabilities:
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-frontend
+  # Next.js / React / TypeScript / CSS Modules front-end modules
+  # ─────────────────────────────────────────────────────────────────
+  mobile-frontend:
+    detect:
+      catalog_capability: mobile-frontend
+      or_files:
+        - next.config.*
+        - app/layout.tsx
+        - src/app/**/page.tsx
+      or_dependencies:
+        - next
+        - react
+        - "@mobile-de/nextjs-starter"
+        - "@mobile-de/nextjs-starter-intl"
+    required_mde_skills:
+      - mde-figma-intake          # visual spec must be validated before coding
+      - mde-api-contract          # any API this UI calls must have an approved contract
+      - mde-security-gdpr         # PII display, consent, GDPR-safe data rendering
+      - mde-observability         # client-side error tracking, user-action logging
+      - mde-validation            # full test + build + a11y gate before merge
+    agents:
+      architecture:
+        - frontend-developer      # 01-core-development
+        - design-bridge           # 01-core-development — Figma-to-code fidelity
+        - nextjs-developer        # 02-language-specialists — App Router, SSR, RSC
+        - react-specialist        # 02-language-specialists — component decomposition
+        - typescript-pro          # 02-language-specialists — strict types, YAGNI
+        - architect-reviewer      # 04-quality-security — module boundaries, prop flow
+      quality:
+        - refactoring-specialist  # 06-developer-experience — KISS / DRY / YAGNI (mandatory)
+        - code-reviewer           # 04-quality-security — line-level, naming, coupling
+        - accessibility-tester    # 04-quality-security — WCAG 2.1 AA, semantic HTML
+        - performance-engineer    # 04-quality-security — bundle size, CWV, SSR cost
+        - build-engineer          # 06-developer-experience — bundle analysis, tree shaking
+        - ui-ux-tester            # 04-quality-security — visual correctness, responsive
+      validation:
+        - test-automator          # 04-quality-security — TDD gate, coverage
+        - qa-expert               # 04-quality-security — test plan completeness
+        - dependency-manager      # 06-developer-experience — new packages, lockfile
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-storybook
+  # UI component library; Storybook stories for shared components
+  # ─────────────────────────────────────────────────────────────────
+  mobile-storybook:
+    detect:
+      catalog_capability: mobile-storybook
+      or_files:
+        - .storybook/main.*
+        - .storybook/preview.*
+        - "**/*.stories.tsx"
+        - "**/*.stories.ts"
+      or_dependencies:
+        - "@storybook/react"
+        - "@storybook/nextjs"
+        - storybook
+    required_mde_skills:
+      - mde-figma-intake          # component spec must match Figma before story is written
+      - mde-validation            # visual regression, a11y, interaction tests
+    agents:
+      architecture:
+        - ui-designer             # 01-core-development — component system design
+        - design-bridge           # 01-core-development — token usage, visual fidelity
+        - react-specialist        # 02-language-specialists — component API contract
+        - typescript-pro          # 02-language-specialists — prop types, generics
+      quality:
+        - refactoring-specialist  # 06-developer-experience — no story-only abstractions
+        - accessibility-tester    # 04-quality-security — WCAG on isolated component
+        - ui-ux-tester            # 04-quality-security — interactive story coverage
+        - code-reviewer           # 04-quality-security
+      validation:
+        - test-automator          # 04-quality-security — story snapshot + interaction tests
+        - dependency-manager      # 06-developer-experience — Storybook addon versions
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-auth-iam
+  # Authentication, SSO, session management, and IAM patterns used
+  # at mobile.de (Keycloak, OAuth2, Bearer tokens, role-based access)
+  # ─────────────────────────────────────────────────────────────────
+  mobile-auth-iam:
+    detect:
+      catalog_capability: mobile-auth-iam
+      or_files:
+        - src/**/auth/**
+        - src/**/middleware/auth*
+        - src/**/keycloak*
+        - "**/*iam*"
+        - "**/*session*"
+        - "**/*oauth*"
+      or_dependencies:
+        - keycloak-js
+        - "@mobile-de/auth"
+        - next-auth
+        - passport
+      or_env_vars:
+        - KEYCLOAK_URL
+        - OAUTH_CLIENT_ID
+        - IAM_SERVICE_URL
+    required_mde_skills:
+      - mde-security-gdpr         # auth patterns must pass security + GDPR review
+      - mde-api-contract          # token endpoints and auth flows are API contracts
+    agents:
+      architecture:
+        - security-engineer       # 03-infrastructure — auth system design
+        - architect-reviewer      # 04-quality-security — token flow, session boundaries
+        - microservices-architect # 01-core-development — service-to-service auth
+      quality:
+        - security-auditor        # 04-quality-security — OWASP, token storage, XSS
+        - gdpr-ccpa-compliance    # 04-quality-security — consent, data minimization
+        - compliance-auditor      # 04-quality-security — regulatory requirements
+        - penetration-tester      # 04-quality-security — auth bypass, injection
+        - code-reviewer           # 04-quality-security
+      validation:
+        - test-automator          # 04-quality-security — auth integration tests
+        - qa-expert               # 04-quality-security — login flows, RBAC scenarios
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-api-gateway
+  # API gateway patterns: Istio VirtualService, Helm route config,
+  # BFF aggregation, rate limiting, circuit breakers
+  # ─────────────────────────────────────────────────────────────────
+  mobile-api-gateway:
+    detect:
+      catalog_capability: mobile-api-gateway
+      or_files:
+        - "helm/**"
+        - "k8s/**/virtualservice*"
+        - "istio/**"
+        - src/**/bff/**
+        - src/**/gateway/**
+        - "**/*proxy*"
+      or_dependencies:
+        - "@mobile-de/bff"
+        - http-proxy-middleware
+        - express-gateway
+    required_mde_skills:
+      - mde-api-contract          # gateway routes are API contracts
+      - mde-postman               # gateway must be validated with Postman collections
+      - mde-security-gdpr         # gateway is the auth + rate-limit boundary
+      - mde-observability         # gateway traffic must be traced and metered
+    agents:
+      architecture:
+        - api-designer            # 01-core-development — route design, versioning
+        - microservices-architect # 01-core-development — service mesh, traffic policy
+        - platform-engineer       # 03-infrastructure — Istio, Helm, service routing
+        - architect-reviewer      # 04-quality-security — contract review
+      quality:
+        - security-auditor        # 04-quality-security — gateway auth, CORS, headers
+        - performance-engineer    # 04-quality-security — latency budget, circuit breaker
+        - code-reviewer           # 04-quality-security
+        - refactoring-specialist  # 06-developer-experience — KISS gateway config
+      validation:
+        - test-automator          # 04-quality-security — contract and smoke tests
+        - qa-expert               # 04-quality-security — traffic routing scenarios
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-java-backend
+  # Java / Spring Boot service modules
+  # ─────────────────────────────────────────────────────────────────
+  mobile-java-backend:
+    detect:
+      catalog_capability: mobile-java-backend
+      or_files:
+        - pom.xml
+        - build.gradle
+        - src/main/java/**
+      or_dependencies:
+        - spring-boot
+        - spring-framework
+    required_mde_skills:
+      - mde-api-contract          # every REST endpoint change needs an approved contract
+      - mde-postman               # Postman collection must cover all changed endpoints
+      - mde-observability         # structured logs, trace IDs, metrics on every endpoint
+      - mde-security-gdpr         # PII in request/response, GDPR data handling
+      - mde-mongodb               # if service owns MongoDB collections
+    agents:
+      architecture:
+        - java-architect          # 02-language-specialists — Spring, DI, layering
+        - spring-boot-engineer    # 02-language-specialists — Boot patterns, actuator
+        - backend-developer       # 01-core-development — REST, data access, error handling
+        - microservices-architect # 01-core-development — service boundaries, events
+        - architect-reviewer      # 04-quality-security — contract review
+      quality:
+        - refactoring-specialist  # 06-developer-experience — KISS / DRY / YAGNI
+        - code-reviewer           # 04-quality-security
+        - security-auditor        # 04-quality-security — input validation, OWASP
+        - performance-engineer    # 04-quality-security — query cost, connection pools
+      validation:
+        - test-automator          # 04-quality-security — unit + integration tests
+        - qa-expert               # 04-quality-security — API contract scenarios
+        - dependency-manager      # 06-developer-experience — Maven/Gradle dependencies
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-mongodb
+  # MongoDB collections, schemas, indexes, and migrations
+  # ─────────────────────────────────────────────────────────────────
+  mobile-mongodb:
+    detect:
+      catalog_capability: mobile-mongodb
+      or_files:
+        - src/**/*Schema*
+        - src/**/*schema*
+        - "**/*mongoose*"
+        - "**/*.model.ts"
+        - "**/*.model.js"
+      or_dependencies:
+        - mongoose
+        - mongodb
+        - "@mobile-de/mongodb"
+      or_env_vars:
+        - MONGODB_URI
+        - MONGO_URL
+    required_mde_skills:
+      - mde-mongodb               # schema, indexes, migration, rollback evidence required
+      - mde-security-gdpr         # GDPR: data retention, PII classification
+      - mde-observability         # slow-query logging, index usage monitoring
+    agents:
+      architecture:
+        - database-administrator  # 03-infrastructure — schema design, index strategy
+        - database-optimizer      # 05-data-ai — query performance, index tuning
+        - backend-developer       # 01-core-development — data access layer
+      quality:
+        - security-auditor        # 04-quality-security — injection, field encryption
+        - gdpr-ccpa-compliance    # 04-quality-security — data retention, right to erasure
+        - refactoring-specialist  # 06-developer-experience — no duplicate query logic
+        - code-reviewer           # 04-quality-security
+      validation:
+        - test-automator          # 04-quality-security — migration tests, rollback tests
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-observability
+  # Structured logging, distributed tracing, metrics, dashboards,
+  # and alerting for all mobile.de services
+  # ─────────────────────────────────────────────────────────────────
+  mobile-observability:
+    detect:
+      catalog_capability: mobile-observability
+      or_files:
+        - src/**/*logger*
+        - src/**/*metrics*
+        - src/**/*tracing*
+        - "**/*opentelemetry*"
+        - "**/*datadog*"
+      or_dependencies:
+        - "@opentelemetry/api"
+        - "@mobile-de/logger"
+        - pino
+        - winston
+        - dd-trace
+    required_mde_skills:
+      - mde-observability         # log schema, correlation IDs, privacy restrictions
+      - mde-security-gdpr         # PII must not appear in logs or traces
+    agents:
+      architecture:
+        - sre-engineer            # 03-infrastructure — SLO, alert design
+        - platform-engineer       # 03-infrastructure — tracing infrastructure
+        - backend-developer       # 01-core-development — log instrumentation
+      quality:
+        - security-auditor        # 04-quality-security — PII scrubbing in logs
+        - gdpr-ccpa-compliance    # 04-quality-security — log retention, anonymization
+        - code-reviewer           # 04-quality-security
+        - refactoring-specialist  # 06-developer-experience — no scattered log calls
+      validation:
+        - test-automator          # 04-quality-security — log output tests
+        - qa-expert               # 04-quality-security — trace coverage
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-security-gdpr
+  # Cross-cutting security and GDPR compliance review.
+  # Triggered whenever PII fields, auth flows, or sensitive data
+  # are touched — regardless of other detected capabilities.
+  # ─────────────────────────────────────────────────────────────────
+  mobile-security-gdpr:
+    detect:
+      catalog_capability: mobile-security-gdpr
+      or_files:
+        - src/**/*consent*
+        - src/**/*gdpr*
+        - src/**/*pii*
+        - src/**/*personal*
+        - src/**/*privacy*
+      or_field_names:
+        - email
+        - phoneNumber
+        - dateOfBirth
+        - identificationNumber
+        - firstName
+        - lastName
+    required_mde_skills:
+      - mde-security-gdpr         # full security + GDPR review required
+    agents:
+      architecture:
+        - architect-reviewer      # 04-quality-security
+        - security-engineer       # 03-infrastructure
+      quality:
+        - security-auditor        # 04-quality-security
+        - gdpr-ccpa-compliance    # 04-quality-security
+        - compliance-auditor      # 04-quality-security
+        - penetration-tester      # 04-quality-security — data exfiltration paths
+      validation:
+        - test-automator          # 04-quality-security — GDPR scenario coverage
+        - qa-expert               # 04-quality-security
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-infrastructure
+  # Kubernetes, Helm, Terraform, Istio, and deployment manifests
+  # ─────────────────────────────────────────────────────────────────
+  mobile-infrastructure:
+    detect:
+      catalog_capability: mobile-infrastructure
+      or_files:
+        - helm/**
+        - k8s/**
+        - terraform/**
+        - "**/*.tf"
+        - "**/*.tfvars"
+        - "**/*deployment.yaml"
+        - "**/*values.yaml"
+    required_mde_skills:
+      - mde-release-validation    # deployment readiness, rollback plan required
+      - mde-observability         # infra changes must include observability validation
+      - mde-security-gdpr         # infra changes may affect data-at-rest and transit
+    agents:
+      architecture:
+        - platform-engineer       # 03-infrastructure — cluster, mesh, routing
+        - kubernetes-specialist   # 03-infrastructure — manifest correctness
+        - devops-engineer         # 03-infrastructure — pipeline, release
+        - cloud-architect         # 03-infrastructure — cost, availability
+      quality:
+        - security-engineer       # 03-infrastructure — network policy, secrets
+        - terraform-engineer      # 03-infrastructure — IaC review
+        - docker-expert           # 03-infrastructure — Dockerfile security, multi-stage
+        - sre-engineer            # 03-infrastructure — SLO impact
+        - code-reviewer           # 04-quality-security
+      validation:
+        - test-automator          # 04-quality-security — smoke tests post-deploy
+        - chaos-engineer          # 04-quality-security — resilience, failure injection
+        - deployment-engineer     # 03-infrastructure — rollback validation
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-i18n
+  # Internationalisation: Lokalise keys, next-intl, translation tables
+  # ─────────────────────────────────────────────────────────────────
+  mobile-i18n:
+    detect:
+      catalog_capability: mobile-i18n
+      or_files:
+        - src/**/translations*
+        - src/**/*.i18n.*
+        - lokalise.config.*
+      or_dependencies:
+        - next-intl
+        - "@mobile-de/nextjs-starter-intl"
+        - i18next
+    required_mde_skills:
+      - mde-validation            # no hardcoded strings at commit gate
+    agents:
+      quality:
+        - ai-writing-auditor      # 04-quality-security — key naming, copy consistency
+        - code-reviewer           # 04-quality-security — no hardcoded human-readable strings
+        - refactoring-specialist  # 06-developer-experience — no duplicated translation keys
+
+  # ─────────────────────────────────────────────────────────────────
+  # mobile-api-contract
+  # Any module that produces or consumes HTTP/REST APIs
+  # ─────────────────────────────────────────────────────────────────
+  mobile-api-contract:
+    detect:
+      catalog_capability: mobile-api-contract
+      or_files:
+        - src/**/*RequestBody*
+        - src/**/*Mapping*
+        - src/**/*contractMapping*
+        - src/**/*service*
+        - src/**/*client*
+        - openapi.*
+        - swagger.*
+    required_mde_skills:
+      - mde-api-contract          # approved contract required before implementation
+      - mde-postman               # Postman collection required for every endpoint change
+    agents:
+      architecture:
+        - api-designer            # 01-core-development — contract design, versioning
+        - architect-reviewer      # 04-quality-security — round-trip fidelity
+        - api-documenter          # 07-specialized-domains — OpenAPI spec accuracy
+      quality:
+        - refactoring-specialist  # 06-developer-experience — no duplicate mapping logic
+        - code-reviewer           # 04-quality-security
+        - security-auditor        # 04-quality-security — field exposure, auth headers
+      validation:
+        - test-automator          # 04-quality-security — round-trip tests required
+        - qa-expert               # 04-quality-security — contract scenario coverage
+
+  # ─────────────────────────────────────────────────────────────────
+  # code-nodejs
+  # Node.js backend services (BFF, API, middleware)
+  # ─────────────────────────────────────────────────────────────────
+  code-nodejs:
+    detect:
+      or_files:
+        - src/server/**
+        - src/**/server.ts
+        - src/**/server.js
+        - src/**/app.ts
+        - src/**/app.js
+      or_dependencies:
+        - express
+        - fastify
+        - koa
+        - hapi
+        - "@hapi/hapi"
+      or_engines:
+        - node
+    required_mde_skills:
+      - mde-api-contract          # every route change needs an approved contract
+      - mde-security-gdpr         # Node.js APIs handle PII directly
+      - mde-observability         # structured logs, correlation IDs
+    agents:
+      architecture:
+        - node-specialist         # 02-language-specialists — Node.js patterns, streams
+        - backend-developer       # 01-core-development — REST, middleware, error handling
+        - api-designer            # 01-core-development — route contract review
+      quality:
+        - refactoring-specialist  # 06-developer-experience — KISS / DRY / YAGNI
+        - code-reviewer           # 04-quality-security
+        - security-auditor        # 04-quality-security — injection, header hygiene
+        - performance-engineer    # 04-quality-security — event loop, async patterns
+      validation:
+        - test-automator          # 04-quality-security — unit + integration tests
+        - dependency-manager      # 06-developer-experience — npm/yarn audit
+
+  # ─────────────────────────────────────────────────────────────────
+  # code-schema-validation
+  # Zod, class-validator, or JSON Schema used for data validation
+  # ─────────────────────────────────────────────────────────────────
+  code-schema-validation:
+    detect:
+      or_dependencies:
+        - zod
+        - class-validator
+        - joi
+        - yup
+    agents:
+      architecture:
+        - architect-reviewer      # 04-quality-security — schema extension patterns
+      quality:
+        - typescript-pro          # 02-language-specialists — inferred types, strict nulls
+        - refactoring-specialist  # 06-developer-experience — shared base schema vs duplication
+        - code-reviewer           # 04-quality-security
+      validation:
+        - test-automator          # 04-quality-security — schema unit tests required
+
+  # ─────────────────────────────────────────────────────────────────
+  # code-testing-playwright
+  # Playwright E2E / browser tests
+  # ─────────────────────────────────────────────────────────────────
+  code-testing-playwright:
+    detect:
+      or_files:
+        - playwright.config.*
+        - e2e/**/*.spec.*
+      or_dependencies:
+        - "@playwright/test"
+    agents:
+      quality:
+        - test-automator          # 04-quality-security — E2E coverage, smoke vs regression
+        - qa-expert               # 04-quality-security — test plan completeness
+        - dependency-manager      # 06-developer-experience — browser install, CI impact
+
+  # ─────────────────────────────────────────────────────────────────
+  # code-css-modules
+  # CSS Modules and design token usage
+  # ─────────────────────────────────────────────────────────────────
+  code-css-modules:
+    detect:
+      or_files:
+        - "src/**/*.module.css"
+        - "src/**/*.module.scss"
+    agents:
+      quality:
+        - ui-ux-tester            # 04-quality-security — visual regression, responsive
+        - refactoring-specialist  # 06-developer-experience — hardcoded px vs design tokens
+        - accessibility-tester    # 04-quality-security — contrast, focus styles
+
+# ═══════════════════════════════════════════════════════════════════
+# UNCONDITIONAL AGENTS
+# These run on EVERY task regardless of detected capabilities.
+# They are the minimum quality gate — never skip them.
+# ═══════════════════════════════════════════════════════════════════
+
+always:
+  - refactoring-specialist    # KISS / DRY / YAGNI on all changed files — non-negotiable
+  - code-reviewer             # final line-level gate before every commit
+  - test-automator            # no commit without test evidence
+
+# ═══════════════════════════════════════════════════════════════════
+# UNCONDITIONAL MDE SKILLS
+# These run on EVERY task — process integrity, not just code quality.
+# ═══════════════════════════════════════════════════════════════════
+
+always_skills:
+  - mde-openspec-core         # workflow compliance — feature-based change IDs
+  - mde-git-preflight         # freshness check — required before every /opsx command
+  - mde-task-coordination     # atomic task claim — two users cannot own same task
+  - mde-validation            # final gate: contracts, tests, build, traceability
+
+# ═══════════════════════════════════════════════════════════════════
+# ENGINEERING PRINCIPLES (enforced by refactoring-specialist)
+# ═══════════════════════════════════════════════════════════════════
+
+principles:
+  KISS:
+    description: >
+      Every function, component, and service does one thing.
+      No conditional complexity that could be a separate component or method.
+      No abstraction without two concrete existing use cases in the same task.
+  DRY:
+    description: >
+      Constants shared across files live in one place.
+      Mapping logic is not duplicated between hooks and utility functions.
+      Country codes, supported values, and enum sets have a single source of truth.
+      Test fixtures use factory functions, not repeated inline objects.
+  YAGNI:
+    description: >
+      No props, types, config, or environment variables added for hypothetical future use.
+      No feature-flag scaffolding for one-off developer bypasses.
+      NEXT_PUBLIC_MOCK_UI guards must be removed before merge if they serve
+      local development only.
+      No backwards-compatibility shims unless an existing consumer is proven to exist.
+
+# ═══════════════════════════════════════════════════════════════════
+# PHASE EXECUTION ORDER
+# All selected agents must complete their phase before the next starts.
+# ═══════════════════════════════════════════════════════════════════
+
+phase_order:
+  1_architecture:
+    - Understand the scope and design constraints
+    - Verify API contracts and Figma spec before writing code
+    - Flag missing contracts, specs, or ambiguous scope as blockers
+  2_implementation:
+    - Write code only after architecture phase completes with no blockers
+    - Apply KISS / DRY / YAGNI throughout
+  3_quality:
+    - refactoring-specialist reviews all changed files for KISS/DRY/YAGNI
+    - code-reviewer line-level review
+    - Specialist quality agents per detected capabilities
+  4_validation:
+    - test-automator verifies test existence and passing
+    - mde-validation runs full gate: build, contracts, a11y, traceability
+    - No commit until all phases pass

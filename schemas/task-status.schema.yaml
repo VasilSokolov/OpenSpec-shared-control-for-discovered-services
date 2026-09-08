@@ -1,0 +1,14 @@
+type: object
+required: [task_id, status, spec_revision]
+properties:
+  task_id: {type: string}
+  status:
+    type: string
+    enum: [not_started, claimed, in_progress, implemented, verified, merged, deployed, blocked, failed, needs_rework, needs_revalidation]
+  spec_revision: {type: string}
+  repository_id: {type: string}
+  module_id: {type: string}
+  worktree_id: {type: string}
+  branch: {type: string}
+  commit: {type: string}
+  evidence: {type: array}

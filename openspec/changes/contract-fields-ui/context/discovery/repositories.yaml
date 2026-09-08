@@ -1,0 +1,47 @@
+discovered_at: "2026-09-05"
+query: "digital contract seller fields section UI frontend"
+
+repositories:
+  - id: ps-contract-node
+    org: mobile-de
+    url: https://github.mpi-internal.com/mobile-de/ps-contract-node
+    commit: de2eb04d7e70
+    role: primary
+    languages: [typescript, javascript]
+    frameworks: [nextjs, react, react-hook-form, zod, vitest]
+    build: "yarn build"
+    test: "yarn test"
+    translations: lokalise
+    lokalise_project_id: "794098406582daef51f997.67431793"
+    affected_modules:
+      - path: src/app/digitalcontract/_components/contract/ContractForm.tsx
+        description: Seller-section integration only
+      - path: src/app/digitalcontract/_components/contract/components/sections/PartySection.tsx
+        description: Seller PartySection implementation
+      - path: src/app/digitalcontract/_components/contract/contract.schema.ts
+        description: Seller validation rules only
+      - path: src/app/digitalcontract/_components/contract/contractMapping.ts
+        description: Seller defaults and mapping only
+    existing_sections:
+      - AccessoriesSection.tsx
+      - AttachmentsSection.tsx
+      - HandoverSection.tsx
+      - OtherAgreementsSection.tsx
+      - PartySection.tsx
+      - PriceSection.tsx
+      - RetentionOfTitleSection.tsx
+      - SellerAssurancesSection.tsx
+      - SellerDeclarationsSection.tsx
+      - SignSection.tsx
+      - TestDriveSection.tsx
+      - VehicleDocumentsSection.tsx
+      - VehicleSection.tsx
+      - WarrantySection.tsx
+
+dependency_notes:
+  - '"@mde-ui" design system used for field primitives (TextInput, etc.)'
+  - Figma source supplied by user: file FNAEfVMZ6XewqNL26IrVRf, node 12234-58435
+  - Figma visual validation: pending authenticated access and screenshot evidence
+  - Translations managed via Lokalise CLI (.lokalise.yml) — pull/push via CLI
+  - No backend / API changes identified in scope
+  - openspec/changes present in ps-contract-node (bundled runtime spec delivery)

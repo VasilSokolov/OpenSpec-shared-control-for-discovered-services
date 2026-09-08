@@ -1,0 +1,38 @@
+Figma node content extraction — QCT - Digital Contract Q3 2026
+File key: FNAEfVMZ6XewqNL26IrVRf
+Node ID: 12234-58435
+Extracted via: mcp__figma__get_figma_design (authenticated Figma MCP)
+Extracted at: 2026-09-05
+
+NOTE: The Figma API returned a large JSON response (111 KB) for this node.
+A rendered screenshot was not returned inline. The complete field structure
+was extracted from the node tree and is documented in acceptance-review.md.
+
+=== SELLER SECTION CONTENT EXTRACTED FROM NODE TREE ===
+
+Page: QCT - Digital Contract Q3/2026
+
+1. Verkäufer
+
+  1.1 Person und Anschrift
+    Anrede                      [Radio: Herr / Frau / Neutrale Anrede]  required
+    Vorname                     [TextField]  placeholder: z.B. Max         required
+    Nachname                    [TextField]  placeholder: z.B. Mustermann  required
+    Straße                      [TextField]  placeholder: z.B. Musterstr.  required
+    Nr.                         [TextField]  placeholder: z.B. 12a         optional
+    PLZ                         [TextField]  placeholder: z.b. 12103       required
+    Ort                         [TextField]  placeholder: z.B. Berlin      required
+    Land                        [Dropdown]   default: Deutschland           required
+
+  1.2 Kontaktdaten
+    E-Mail-Adresse              [TextField email]  placeholder: z.b. max.mustermann@mail.de  required
+    Ländervorwahl               [Dropdown]         default: +49 (DE)                          required
+    Telefonnummer               [TextField tel]    placeholder: z.B. 01761234567             required
+
+  1.3 Persönliche Angaben
+    Geburtsdatum                [TextField date]   placeholder: TT.MM.JJJJ                   required
+    Personalausweisnummer       [TextField]        placeholder: z.B. F7KAS78                 optional
+
+=== END OF EXTRACTED CONTENT ===
+
+Next section boundary found in node: 2. Fahrzeug (out of scope for this change)

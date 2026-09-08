@@ -1,0 +1,28 @@
+{
+  "name": "mde-dev-exp",
+  "version": "1.0.3",
+  "description": "Tooling and developer productivity experts - CLI tools, documentation, README generation, and DX optimization",
+  "author": {
+    "name": "Mobile.de Community",
+    "url": "https://www.mobile.de"
+  },
+  "repository": "internal://mde-agent-library",
+  "license": "MIT",
+  "agents": [
+    "./build-engineer.md",
+    "./cli-developer.md",
+    "./dependency-manager.md",
+    "./documentation-engineer.md",
+    "./dx-optimizer.md",
+    "./git-workflow-manager.md",
+    "./legacy-modernizer.md",
+    "./mcp-developer.md",
+    "./powershell-module-architect.md",
+    "./powershell-ui-architect.md",
+    "./readme-generator.md",
+    "./refactoring-specialist.md",
+    "./slack-expert.md",
+    "./tooling-engineer.md",
+    "./visual-asset-generator.md"
+  ]
+}

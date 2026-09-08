@@ -1,0 +1,11 @@
+type: object
+required: [task_id, owner, repository_id, worktree_id, spec_revision, status]
+properties:
+  task_id: {type: string}
+  owner: {type: string}
+  repository_id: {type: string}
+  worktree_id: {type: string}
+  spec_revision: {type: string}
+  claimed_at: {type: string}
+  lease_expires_at: {type: string}
+  status: {type: string, enum: [claimed, in_progress, released, expired, transferred]}

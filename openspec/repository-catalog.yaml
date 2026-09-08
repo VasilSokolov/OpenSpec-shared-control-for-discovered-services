@@ -1,0 +1,15 @@
+# Optional seed metadata only. Runtime routing uses mob-code search and the
+# generated repository map for the active change.
+discovery:
+  provider: mob-code-search
+  transport: mcp
+  tools:
+    status: mcs_system_status
+    list_repositories: mcs_list_indexed_repos
+    search: mcs_search
+    find_symbol: mcs_find_symbol
+    read_symbol: mcs_read_symbol
+    file_outline: mcs_file_outline
+    ask: mcs_ask
+  refresh_before_command: true
+repositories: []

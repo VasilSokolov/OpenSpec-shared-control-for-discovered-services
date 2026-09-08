@@ -1,0 +1,38 @@
+{
+  "id": "310164",
+  "key": "QCT-4690",
+  "summary": "Update contract field section with new UI/UX",
+  "url": "https://jira.adevinta.com/browse/QCT-4690",
+  "description": "## Background:\n\nThis epic is to update the Frontend of the contract, specifically the fields section after we have now received the new/final design.\n\nThis consists of:\n- Creating subsections for the different contract parts (e.g. seller, vehicle)\n- Re-arranging of all fields\n- Adding new fields if necessary, including the fields that are hidden by show if logic\n- Updating field types if necessary\n- Adding \"required\" to all applicable fields\n- Adding headers and subheaders\n- Adding translation keys for all fields, headers, bodies in the field section\n- Adding validation to the fields where applicable\n- Adding UI for the different contract states\n- Adding UI for buyer and seller\n\n## Goal:\n\nUpdate the fields section UI for the contract service.\n\n## Scope:\n- Build the whole UI/UX for the fields section (From 1. Verkäufer - 6. Unterzeichnung) in the digital contract\n- web app and mweb\n\n## Out of scope:\n- Other sections besides the field section\n- No further logic in the signing section\n- Buttons should not lead anywhere\n- signing section\n\n## Resources:\n- List of all fields, translations, formatting: Google Sheets (see ticket)\n- Design: Figma QCT - Digital Contract Q3 2026 (node-id=12234-74109)\n- Translations and keys: Google Sheets (see ticket)",
+  "status": {
+    "name": "In Progress",
+    "category": "In Progress"
+  },
+  "issue_type": {
+    "name": "Story"
+  },
+  "priority": {
+    "name": "P3"
+  },
+  "assignee": {
+    "display_name": "Udhayam Paneerselvam",
+    "email": "udhayam.paneerselvam.ext@adevinta.com"
+  },
+  "reporter": {
+    "display_name": "Eric Süß",
+    "email": "eric.suess.ext@adevinta.com"
+  },
+  "labels": ["digital-contract"],
+  "created": "2026-07-31T13:29:48.368+0200",
+  "updated": "2026-09-04T11:33:22.938+0200",
+  "source": "jira-mcp",
+  "source_timestamp": "2026-09-05T00:00:00Z",
+  "comments": [
+    {
+      "id": "421594",
+      "body": "Blocked since design is making minor changes to it (Figma link in ticket)",
+      "author": "Eric Süß",
+      "created": "2026-08-13T10:09:48.687+0200"
+    }
+  ]
+}

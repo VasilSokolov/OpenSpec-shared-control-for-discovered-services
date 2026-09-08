@@ -1,0 +1,20 @@
+change_id: contract-fields-ui
+jira: QCT-4690
+status: approved
+
+required_approvals:
+  - role: ba
+    approved_by: udhayam.paneerselvam.ext@adevinta.com
+    approved_at: "2026-09-05"
+    notes: "Self-approved by assignee. Scope confirmed: Verkäufer section only.
+      companyName: retain as optional hidden field. Translation reference accepted
+      as temporary source until Drive MCP is enabled."
+
+  - role: engineering
+    approved_by: udhayam.paneerselvam.ext@adevinta.com
+    approved_at: "2026-09-05"
+    notes: "Self-approved by assignee. Design decisions in design.md reviewed and
+      accepted. Figma node 12234-58435 content extracted and field diff confirmed."
+
+blockers: []
+open_questions: []

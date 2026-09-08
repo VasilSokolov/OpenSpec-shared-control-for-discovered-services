@@ -1,0 +1,24 @@
+{
+  "source": "none",
+  "reason": "Internal tooling / architecture change. No Jira ticket and no product-feature intake. Recorded to satisfy the change-package structure; provide a tracking key or accept as an internal ADR before approval.",
+  "key": null,
+  "summary": "Integrate caraoke-workspace as the execution / worktree provider under the OpenSpec control plane",
+  "issue_type": {
+    "name": "Internal-Change"
+  },
+  "status": {
+    "name": "Proposed",
+    "category": "To Do"
+  },
+  "labels": ["internal-tooling", "architecture", "openspec-control-plane"],
+  "acceptance_criteria": [
+    "A governed change can obtain a real, buildable worktree per affected repository from caraoke-workspace.",
+    "The pinned opsx runtime bundle is bootstrapped into a caraoke worktree with a pointer back to this control repo.",
+    "apply/verify run build and test through caraoke's run wrapper from inside the worktree.",
+    "The two repositories remain separate; caraoke is invoked only through existing public Makefile targets.",
+    "Both preflights remain fetch-only (never reset/rebase/overwrite)."
+  ],
+  "created": "2026-09-08T00:00:00Z",
+  "source_timestamp": "2026-09-08T00:00:00Z",
+  "comments": []
+}

@@ -1,0 +1,15 @@
+schema: spec-driven
+change_directory: changes
+archive_directory: changes/archive
+require_approval_before_apply: true
+required_approvals:
+  - ba
+  - engineering
+validation:
+  change_package_script: ../tools/validate-change-package.sh
+  design_evidence_script: ../tools/validation/validate-figma-acceptance.sh
+  automatic_before_approval: true
+preflight_script: ../tools/git-preflight.sh
+repository_discovery: ../tools/discovery
+router: ../tools/router
+coordination: ../tools/coordination

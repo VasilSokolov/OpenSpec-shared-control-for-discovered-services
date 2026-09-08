@@ -1,0 +1,7 @@
+type: object
+required: [bundle_id, bundle_version, source_revision, skills]
+properties:
+  bundle_id: {type: string}
+  bundle_version: {type: string}
+  source_revision: {type: string}
+  skills: {type: array}

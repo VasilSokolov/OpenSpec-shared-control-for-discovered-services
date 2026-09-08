@@ -1,0 +1,59 @@
+key: QCT-4690
+title: "Update contract field section with new UI/UX"
+change_id: contract-fields-ui
+issue_type: Story
+status: In Progress
+priority: P3
+reporter: Eric Süß
+assignee: Udhayam Paneerselvam
+labels:
+  - digital-contract
+source: jira
+source_timestamp: "2026-09-05T00:00:00Z"
+
+description: |
+  Update the Frontend of the digital contract, specifically the fields section,
+  using the new/final design received from the design team.
+
+acceptance_criteria:
+  - Seller subsection created according to the approved first-part design
+  - Seller fields re-arranged per the approved design
+  - Approved seller show-if fields are implemented
+  - Seller field types updated where necessary
+  - Seller required markers and validation are aligned
+  - Seller headers and subheaders are added
+  - Seller translation keys are taken from the local reference
+  - Seller contract-state and buyer/seller behavior is correct
+  - Seller section works on web app and mweb
+
+scope:
+  in:
+    - First contract-fields part only, interpreted as Verkäufer
+    - Web app
+    - Mobile web (mweb)
+  out:
+    - Fahrzeug
+    - Kaufbedingungen
+    - Zahlung
+    - Übergabe
+    - Unterzeichnung
+    - Other page sections and additional signing logic
+    - Button navigation/routing
+    - Field prefilling (separate ticket)
+    - Admin configurability of field attributes/logic
+
+resources:
+  figma_url: "https://www.figma.com/design/FNAEfVMZ6XewqNL26IrVRf/QCT---Digital-Contract-Q3-2026?node-id=12234-58435&t=YohvVhThq2Snj9vx-4"
+  figma_file_key: "FNAEfVMZ6XewqNL26IrVRf"
+  figma_node_id: "12234-58435"
+  translations_reference: "context/intake/translation-reference.md"
+  translations_sheet: "Google Sheets — fields, translations, formatting (Drive MCP pending)"
+
+scope_reconciliation:
+  current_scope: "first contract-fields part only, interpreted as Verkäufer"
+  raw_jira_scope: "The stored Jira intake describes sections 1 through 6"
+  raw_jira_acceptance_preserved_at: "context/intake/jira.json"
+  requires_ba_confirmation: false
+
+links: []
+components: []

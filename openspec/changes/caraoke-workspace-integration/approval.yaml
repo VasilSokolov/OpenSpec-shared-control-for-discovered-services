@@ -1,0 +1,30 @@
+change_id: caraoke-workspace-integration
+jira: none
+status: pending
+
+required_approvals:
+  - role: ba
+    approved_by: ""
+    approved_at: ""
+    notes: ""
+  - role: engineering
+    approved_by: ""
+    approved_at: ""
+    notes: ""
+
+blockers:
+  - id: no-jira-source
+    description: "Internal tooling / architecture change with no Jira ticket. Provide a
+      tracking key or explicitly accept this as an internal ADR-style change before approval."
+  - id: approval-pending
+    description: "Awaiting BA and engineering approval. Proposal is intentionally
+      unapprovable until the integration seam and naming decisions below are confirmed."
+
+open_questions:
+  - "Ownership of worktree creation: should the control plane drive caraoke via
+    `make worktree-new`, or should caraoke stay human/agent-driven and control only
+    bootstrap into an already-created worktree path?"
+  - "Naming reconciliation: adopt the caraoke `QCT-XXXX-short-kebab` branch convention
+    inside worksets, and define the change_id <-> ticket <-> branch mapping."
+  - "Skill/agent altitude: confirm control's opsx loop is the outer driver and caraoke's
+    orchestrator/subagents are the inner execution substrate (no competing orchestrators)."
