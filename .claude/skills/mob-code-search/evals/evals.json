@@ -1,0 +1,23 @@
+{
+  "skill_name": "mob-code-search",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Find where rate limiting is implemented in mobile.de's backend services. Show me the source code.",
+      "expected_output": "Should call search with a query like 'rate limiting' or 'rate limit middleware', retrieve refs from results, then call read_code or read_symbol on the most relevant ref to show actual source.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I need to understand how the class VehicleSearchService is implemented. Can you find it and show me its methods?",
+      "expected_output": "Should call find_symbol with symbol: 'VehicleSearchService', retrieve the ref, then call file_outline to list its methods, then read_symbol on the most relevant methods.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Give me an overview of the vehicle-listing-service repo — what tech stack does it use and how is the directory structured?",
+      "expected_output": "Should call list_indexed_repos to confirm the repo exists, then call repo_overview with the repo name to show tech stack and top-level directory structure.",
+      "files": []
+    }
+  ]
+}

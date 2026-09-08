@@ -1,0 +1,20 @@
+{
+  "skill_name": "mob-internal-service-api-discovery",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I need to find a service that handles dealer ratings. What endpoints does it have and what does the rating data look like?",
+      "expected_output": "Should identify dealer-rating-service, list its endpoints via get_service_overview, and show the rating schema details via get_schema or get_api_endpoint"
+    },
+    {
+      "id": 1,
+      "prompt": "Can you show me how the ad-push service works? I need to understand what APIs it exposes and what parameters I need to send.",
+      "expected_output": "Should call get_service_overview for ad-push, then drill into key endpoints with get_api_endpoint showing parameters and request/response schemas"
+    },
+    {
+      "id": 2,
+      "prompt": "I'm working on authentication. Which services have auth-related endpoints and what do the request/response bodies look like?",
+      "expected_output": "Should use search_apis with 'authentication' across all services, identify multiple services, then drill into at least one endpoint's details"
+    }
+  ]
+}

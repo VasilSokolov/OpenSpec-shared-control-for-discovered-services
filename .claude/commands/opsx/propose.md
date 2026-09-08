@@ -28,6 +28,17 @@ Before generating implementation tasks, enforce this source-first gate:
 6. Create an acceptance traceability matrix mapping each criterion to design
    evidence, task IDs, tests, and final verification evidence.
 
+When the affected repositories are executed through caraoke-workspace (the
+configured execution substrate — see `CONFIG.md`), record the seam mapping in
+the generated `workset.yaml` at propose time so `/opsx:apply` can provision
+worktrees data-driven:
+- a top-level `caraoke_workspace:` block (local path, host, discovery topics,
+  worktree layout, branch convention), and
+- per work item, the `repository_id → caraoke REPO` name and the
+  `QCT-XXXX-short-kebab` branch.
+Do not hardcode repository names or branches in any tool; they live in the
+workset only.
+
 A proposal may be generated with `status: proposed`, but it must remain
 unapprovable while any source, scope, Figma, translation, or traceability
 blocker remains unresolved.

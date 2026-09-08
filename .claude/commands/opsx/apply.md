@@ -24,6 +24,35 @@ selected task using `mde-task-coordination`. Resolve the target repository and
 module from the workset, not from the current directory. Create or open the
 generated worktree. Never write to the current repository as a fallback.
 
+### Step 3a — Provision the worktree (caraoke backend, when configured)
+
+When the change's `workset.yaml` declares a `caraoke_workspace:` block, do not
+create a bare local worktree — delegate to caraoke-workspace so the change gets
+a real, buildable checkout. Read the caraoke `REPO` name and the
+`QCT-XXXX-short-kebab` branch from the claimed work item (both are recorded at
+propose time; never hardcode them). See `CONFIG.md` for team paths, host, and
+the naming convention.
+
+```bash
+tools/router/create-worktree.sh \
+  --caraoke-workspace <caraoke_workspace.local_path> \
+  --caraoke-repo <repository_id → caraoke REPO mapping> \
+  --branch <work-item branch, QCT-XXXX-short-kebab>
+```
+
+The router runs `make fetch` first (so the branch is not based on a stale
+default branch) and prints `WORKTREE_PATH=<abs-path>` as its final line. Then
+bootstrap the pinned runtime bundle into that path — never the workspace root:
+
+```bash
+tools/bootstrap-code-repo.sh --repo <WORKTREE_PATH>
+```
+
+Bootstrapping exports `MDE_CONTROL_ROOT` so the worktree's bundled preflight
+resolves back to this control repository. All build/test in Step 5 runs from
+inside `<WORKTREE_PATH>` through caraoke's `run` wrapper (`eval "$(make path)"`
+once per shell), honouring the repo's pinned `.nvmrc` / `.java-version`.
+
 ## Step 4 — Dynamic capability detection (mandatory before any code is written)
 
 This step MUST complete before any implementation begins. No code, no tests,

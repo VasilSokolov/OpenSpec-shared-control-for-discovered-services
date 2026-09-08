@@ -49,7 +49,8 @@ bare clones under `repos/` and one worktree per branch under
 The two repositories stay independent and are connected by a single,
 data-driven seam. Control is the outer governance loop; caraoke is the inner
 execution substrate that `/opsx:apply` invokes. Never run both orchestrators
-at the same altitude.
+at the same altitude. Team paths, hosts, discovery topics, and the Jira/branch
+naming rules live in [`CONFIG.md`](CONFIG.md) — nothing below is hardcoded.
 
 ### Preconditions
 
@@ -57,32 +58,44 @@ at the same altitude.
 - `gh` authenticated to `github.mpi-internal.com` (caraoke targets GitHub
   Enterprise; control scripts are remote-agnostic).
 
-### Provision and run a worktree per affected repo
+### Where caraoke plugs into the `/opsx:*` lifecycle
 
-The caraoke `REPO` name and the `QCT-XXXX-short-kebab` branch are recorded per
-work item in the change's `workset.yaml` — they are not hardcoded.
+The caraoke integration is not a separate procedure you run by hand — it is the
+worktree/toolchain backend the opsx commands drive. The caraoke `REPO` name and
+the `QCT-XXXX-short-kebab` branch are recorded per work item in the change's
+`workset.yaml` (see `caraoke_workspace:` and per-item `branch`), never hardcoded.
+
+| Command         | Caraoke seam                                                                                     |
+| --------------- | ------------------------------------------------------------------------------------------------ |
+| `/opsx:propose` | Records the `repository_id → caraoke REPO` mapping and `QCT-XXXX-short-kebab` branch per work item in `workset.yaml`. |
+| `/opsx:apply`   | Provisions the worktree via the router's caraoke backend, bootstraps the runtime bundle into it, then builds/tests through `run`. |
+| `/opsx:verify`  | Re-runs build/test inside the worktree through `run` and collects evidence back into the change package. |
+| `/opsx:sync`    | Fetch-only refresh of both control and the worktree remote (`MDE_CONTROL_ROOT` binds them); never resets caraoke worktrees. |
+| `/opsx:archive` | Worktree removal is manual and patch-first; apply/archive never script `FORCE=1` `make worktree-rm`. |
+
+### What `/opsx:apply` runs under the hood
 
 ```bash
-# 0. In the caraoke workspace: fetch first so the branch is not based on a
-#    stale master (a documented caraoke footgun).
-make fetch
-
-# 1. Create the worktree for an affected repository.
-make worktree-new REPO=<repo> BRANCH=QCT-XXXX-short-kebab
-#    -> worktrees/<repo>/QCT-XXXX-short-kebab/
+# 1. Provision the worktree (router caraoke backend — fetches first so the
+#    branch is not based on a stale default branch, a documented caraoke footgun).
+tools/router/create-worktree.sh \
+  --caraoke-workspace ../Mobile-de/caraoke-workspace \
+  --caraoke-repo <repo> \
+  --branch QCT-XXXX-short-kebab
+#    -> WORKTREE_PATH=<workspace>/worktrees/<repo>/QCT-XXXX-short-kebab
 
 # 2. Bootstrap the pinned opsx runtime bundle INTO the worktree (never the
 #    workspace root, which would clobber caraoke's own .claude config).
 #    Exporting MDE_CONTROL_ROOT lets the bundled preflight resolve back here.
-tools/bootstrap-code-repo.sh --repo worktrees/<repo>/QCT-XXXX-short-kebab
+tools/bootstrap-code-repo.sh --repo <workspace>/worktrees/<repo>/QCT-XXXX-short-kebab
 
 # 3. Resolve the per-worktree toolchain and run build/test through `run`
 #    (mise honours each repo's .nvmrc / .java-version).
-eval "$(make path)"
-make toolchain REPO=<repo>
-run ./mvnw verify        # Java
-run yarn install && run yarn test   # Node (check yarn.lock vs package-lock.json)
+eval "$(make -C ../Mobile-de/caraoke-workspace path)"
+make -C ../Mobile-de/caraoke-workspace toolchain REPO=<repo>
+run ./mvnw verify                    # Java
+run yarn install && run yarn test    # Node (check yarn.lock vs package-lock.json)
 ```
 
 Cleanup with `make worktree-rm` is irreversible without saving a patch first;
-do not script `FORCE=1` removal inside apply.
+do not script `FORCE=1` removal inside apply or archive.
