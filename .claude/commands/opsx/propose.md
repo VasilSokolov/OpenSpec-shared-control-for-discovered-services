@@ -1,17 +1,31 @@
-# /opsx:propose
+---
+description: Open/resume an OpenSpec change in the MDE control plane — Jira (QCT) intake, mob-code-search discovery of Swifty/Caraoke service repos, caraoke-workspace worktree seam. Also /openspec:propose.
+argument-hint: "[QCT ticket key | feature description]"
+---
+
+# /opsx:propose (alias: /openspec:propose)
 
 Before doing anything else, run the repository's pinned Git preflight
 (`tools/git-preflight.sh` in control, `.claude/tools/git-preflight.sh` in a
 bootstrapped code repository). If it fails, stop.
 
-Create or resume a feature-based OpenSpec change in the control repository.
-When a ticket key is supplied, call the configured `fetch_jira_ticket` MCP
-tool. Show the current user's active Jira work only when a separate Jira
-search/list tool is configured; otherwise ask for a ticket key. Accept pasted
-Jira details or screenshots when connectors are unavailable. Discover affected
-repositories, modules, dependencies, contracts, tests, observability, and
-deployment requirements. Generate proposal, design, tasks, delta specs,
-worksets, and approval records. Do not implement product code.
+Create or resume a feature-based OpenSpec change in this MDE OpenSpec SDLC
+control repository — the shared, spec-driven control plane that governs the
+Mobile.de service repositories owned by the Swifty/Caraoke teams (Jira project
+`QCT`). This command produces only the governed change package; product code
+stays in the discovered service repositories and is written later by
+`/opsx:apply` inside a caraoke-workspace worktree.
+
+Intake is `QCT`-first: when a ticket key is supplied, call the configured
+`fetch_jira_ticket` MCP tool. Show the current user's active Jira work only when
+a separate Jira search/list tool is configured; otherwise ask for a `QCT-XXXX`
+ticket key. Accept pasted Jira details or screenshots when connectors are
+unavailable. Discover affected repositories through the mob-code-search MCP
+provider declared in `openspec/repository-catalog.yaml` (never a hardcoded repo
+list), then map modules, dependencies, API/data contracts, tests, observability,
+and deployment requirements. Name the change `<page>-<feature>` (see
+`openspec/project.md`). Generate the proposal, design, tasks, delta specs,
+workset, and approval records. Do not implement product code.
 
 Before generating implementation tasks, enforce this source-first gate:
 

@@ -10,15 +10,28 @@ OpenSpec change is not copied into those repositories.
 
 ## User workflow
 
-Every command begins with the Git freshness preflight:
+The lifecycle is driven by slash commands. Every command begins with the Git
+freshness preflight:
 
 ```text
-/opsx:propose
-/opsx:apply
-/opsx:verify
-/opsx:sync
-/opsx:archive
+/opsx:propose    (or /openspec:propose)
+/opsx:apply      (or /openspec:apply)
+/opsx:verify     (or /openspec:verify)
+/opsx:sync       (or /openspec:sync)
+/opsx:archive    (or /openspec:archive)
 ```
+
+Two supporting commands run the evidence gates on demand:
+
+```text
+/opsx:approve    (or /openspec:approve)   BA + engineering approval gate
+/opsx:validate   (or /openspec:validate)  change-package + design validation
+```
+
+Both namespaces are equivalent: the `openspec:*` commands are thin aliases that
+delegate to the canonical `.claude/commands/opsx/*` definitions (single source
+of truth), so they can never drift on a governance gate. Use whichever prefix
+you prefer.
 
 The preflight fetches the control repository and all repositories in the
 current workset. It never resets, overwrites, or silently rebases local work.
