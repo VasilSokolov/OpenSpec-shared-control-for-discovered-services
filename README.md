@@ -1,0 +1,1 @@
+# OpenSpec-shared-control-for-discovered-services
