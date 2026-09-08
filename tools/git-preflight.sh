@@ -124,7 +124,7 @@ fetch_one() {
 
 fetch_one "$CONTROL_ROOT" control
 
-for repository in "${REPOSITORIES[@]}"; do
+for repository in ${REPOSITORIES[@]+"${REPOSITORIES[@]}"}; do
   resolved_repository="$(cd "$repository" && pwd)"
   [[ "$resolved_repository" == "$CONTROL_ROOT" ]] && continue
   fetch_one "$resolved_repository" code
