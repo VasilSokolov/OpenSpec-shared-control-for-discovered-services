@@ -1,0 +1,36 @@
+change_id: control-plane-desktop-console
+jira: none
+status: approved
+
+required_approvals:
+  - role: ba
+    approved_by: "Vasil Sokolov"
+    approved_at: "2026-09-09"
+    notes: "Self-approved by assignee. Accepted as an internal ADR-style change
+      with no Jira source and no design source. Scope confirmed: a local,
+      single-operator desktop console over the file-based control plane and its
+      scripts; no product-code or caraoke-workspace changes."
+  - role: engineering
+    approved_by: "Vasil Sokolov"
+    approved_at: "2026-09-09"
+    notes: "Self-approved by assignee. design.md decisions accepted and the three
+      open questions resolved (see decisions)."
+
+blockers: []
+open_questions: []
+
+decisions:
+  - id: surface
+    resolution: "Tauri v2 desktop app (Rust core + web frontend). Rejected Electron
+      (footprint, no ACL), localhost web app (no native FS/process, extra server),
+      VS Code extension (couples to the editor host), and TUI (no evidence/diff viewer)."
+  - id: frontend-framework
+    resolution: "Vite + React + TypeScript. Next.js static export rejected: SSR/RSC/
+      route-handlers are dead weight under Tauri's static-asset model. Switchable
+      later only if @mde-ui / mobile.de component reuse becomes an explicit driver."
+  - id: hosting
+    resolution: "New apps/console/ module in this control repo, so the console stays
+      in lockstep with the change-package schema and script paths. Split into its own
+      repository only if it grows an independent release cadence."
+  - id: product-name
+    resolution: "OpsX Console — matches the /opsx:* command surface it drives."

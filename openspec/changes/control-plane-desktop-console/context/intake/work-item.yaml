@@ -1,0 +1,61 @@
+key: none
+title: "Desktop console (Tauri v2, Rust core + web frontend) over the file-based OpenSpec control plane"
+change_id: control-plane-desktop-console
+issue_type: Internal-Change
+status: Proposed
+priority: P3
+reporter: Vasil Sokolov
+assignee: Vasil Sokolov
+labels:
+  - internal-tooling
+  - architecture
+  - openspec-control-plane
+  - desktop-app
+  - tauri
+source: internal
+source_timestamp: "2026-09-09T00:00:00Z"
+
+description: |
+  Build a Tauri v2 desktop app (Rust core + web frontend) that presents this
+  file-based OpenSpec control plane as an operable UI: browse changes, review
+  evidence and traceability, run the pinned gate scripts, provision + bootstrap
+  worktrees, and stream an /opsx:* agent run. The app is a view/controller over
+  the existing YAML packages and bash gates — it does not reimplement governance
+  logic, which stays the single source of truth. Frontend framework defaults to
+  Vite + React; Next.js static export only if @mde-ui / mobile.de component reuse
+  is an explicit driver.
+
+acceptance_criteria:
+  - A desktop console renders the file-based control-plane state from openspec/changes/*/
+  - The console runs the pinned gate scripts via named commands and streams output + exit status
+  - The console can stream a headless /opsx:propose and /opsx:apply agent run
+  - The console is a view/controller only; no governance logic reimplemented in Rust
+  - No generic command execution and no push is reachable; preflight stays fetch-only; capabilities grant only named commands
+
+scope:
+  in:
+    - Tauri v2 desktop shell and thin Rust core (apps/console/)
+    - Read model over openspec/changes/*/ with a filesystem watcher
+    - Gate runners: one named command per pinned script (preflight, validate, create-worktree, bootstrap)
+    - Agent bridge: opt-in headless /opsx:* run streamed to the UI
+    - UI views (dashboard, approval action, evidence/diff viewer, workset board, gate runner)
+    - Documentation of the console and the view/controller boundary
+  out:
+    - Reimplementing validation/approval/preflight logic in Rust
+    - Replacing the /opsx:* agent loop with the desktop app
+    - Hosted multi-user web deployment (server, auth, RBAC)
+    - Tauri mobile targets
+    - CI wiring for building/signing the app (deferred to a later change)
+
+design_source:
+  present: false
+  note: "No Figma / visual design source. Internal tooling and architecture change."
+
+scope_reconciliation:
+  current_scope: "a local, single-operator desktop console over the file-based control plane and its scripts"
+  raw_jira_scope: "none — no Jira ticket"
+  raw_jira_acceptance_preserved_at: "context/intake/jira.json"
+  requires_ba_confirmation: false
+
+links: []
+components: []

@@ -1,0 +1,24 @@
+{
+  "source": "none",
+  "reason": "Internal tooling / architecture change. No Jira ticket and no product-feature intake. Recorded to satisfy the change-package structure; provide a tracking key or accept as an internal ADR before approval.",
+  "key": null,
+  "summary": "Desktop console (Tauri v2, Rust core + web frontend) over the file-based OpenSpec control plane",
+  "issue_type": {
+    "name": "Internal-Change"
+  },
+  "status": {
+    "name": "Proposed",
+    "category": "To Do"
+  },
+  "labels": ["internal-tooling", "architecture", "openspec-control-plane", "desktop-app", "tauri"],
+  "acceptance_criteria": [
+    "A desktop console renders the file-based control-plane state (changes, status, approvals, work items, evidence, traceability) from openspec/changes/*/.",
+    "The console runs the pinned gate scripts (preflight, validate, create-worktree, bootstrap) via named commands and streams their output and exit status.",
+    "The console can stream a headless /opsx:propose and /opsx:apply agent run.",
+    "The console is a view/controller only; no governance logic is reimplemented in Rust and the YAML packages + bash scripts remain the single source of truth.",
+    "No generic command execution and no push is reachable from the UI; preflight stays fetch-only and Tauri v2 capabilities grant only the named commands."
+  ],
+  "created": "2026-09-09T00:00:00Z",
+  "source_timestamp": "2026-09-09T00:00:00Z",
+  "comments": []
+}

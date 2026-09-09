@@ -1,0 +1,45 @@
+discovered_at: "2026-09-09"
+query: "openspec control plane desktop console tauri rust frontend gate runner agent bridge"
+
+repositories:
+  - id: openspec-shared-control-for-discovered-services
+    org: VasilSokolov
+    url: https://github.com/VasilSokolov/OpenSpec-shared-control-for-discovered-services
+    role: primary
+    languages: [rust, typescript, bash, yaml]
+    build: "cd apps/console && cargo tauri build   # (module created by this change)"
+    test: "tools/validate-change-package.sh --change <change-dir>"
+    affected_modules:
+      - path: apps/console
+        description: New Tauri v2 desktop app (src-tauri Rust core + web frontend)
+      - path: apps/console/src-tauri
+        description: Thin Rust core — change read model, gate runners, agent bridge, ACL capabilities
+      - path: apps/console/src-tauri/capabilities
+        description: Tauri v2 capability/ACL files granting only the named commands
+      - path: openspec/project.md
+        description: Document the console and the view/controller boundary
+      - path: README.md
+        description: Console runbook and single-source-of-truth rule
+
+integration_surface:
+  control_scripts_invoked:
+    - tools/git-preflight.sh
+    - tools/validate-change-package.sh
+    - tools/router/create-worktree.sh
+    - tools/bootstrap-code-repo.sh
+  agent_bridge:
+    - "claude -p (headless Claude Code) / Agent SDK for /opsx:propose and /opsx:apply"
+  read_model_sources:
+    - openspec/changes/*/proposal.md
+    - openspec/changes/*/design.md
+    - openspec/changes/*/tasks.md
+    - openspec/changes/*/workset.yaml
+    - openspec/changes/*/approval.yaml
+    - openspec/changes/*/context/evidence/**
+
+dependency_notes:
+  - "The console is a view/controller over existing artefacts: it parses the YAML/JSON/Markdown change packages and invokes the pinned bash gates. Governance logic is NOT reimplemented in Rust."
+  - "Tauri v2 serves the frontend as static assets (no runtime Node/SSR); Next.js would run as output: 'export'. Vite + React is the default; Next.js only for @mde-ui reuse."
+  - "Tauri v2 capability/ACL: only the named commands are granted; no generic shell/fs scope. No push command is exposed; preflight stays fetch-only."
+  - "Agent bridge requires an authenticated headless Claude Code in the app environment; treated as a precondition."
+  - "No product-code change and no backend/API change in scope. caraoke-workspace is not modified."

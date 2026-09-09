@@ -1,0 +1,89 @@
+change_id: control-plane-desktop-console
+scope: control-plane-desktop-console-tooling
+
+# capabilities_detected[] and agents_invoked[] are populated by /opsx:apply from a
+# live scan of the target module. This is a proposal; not yet detected. Anticipated
+# (subject to the framework decision): mobile-frontend (if Next.js/React frontend),
+# plus a Rust/desktop capability not currently in the capability-skill-matrix.
+
+work_items:
+  - id: decisions-and-preconditions
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: openspec/changes/control-plane-desktop-console
+    description: "Confirm surface (Tauri vs VS Code ext), frontend framework, hosting, the view/controller boundary, and toolchain/agent preconditions"
+    worktree: ""
+    branch: ""
+    depends_on: []
+    agent: ""
+    status: pending
+
+  - id: tauri-shell-and-rust-core
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: apps/console/src-tauri
+    description: "Scaffold the Tauri v2 app, define capability/ACL files, resolve control-repo root from config"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - decisions-and-preconditions
+    agent: ""
+    status: pending
+
+  - id: change-read-model
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: apps/console/src-tauri
+    description: "Rust commands to enumerate + parse openspec/changes/*/ with serde; notify filesystem watcher; defensive parsing"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - tauri-shell-and-rust-core
+    agent: ""
+    status: pending
+
+  - id: gate-runners
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: apps/console/src-tauri
+    description: "One named command per pinned script (preflight, validate, create-worktree, bootstrap); stream output + exit; no generic exec; no push; fetch-only preserved"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - tauri-shell-and-rust-core
+    agent: ""
+    status: pending
+
+  - id: agent-bridge
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: apps/console/src-tauri
+    description: "Opt-in run_opsx bridge to headless claude -p / Agent SDK for /opsx:propose and /opsx:apply with a streamed transcript"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - gate-runners
+    agent: ""
+    status: pending
+
+  - id: ui-views
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: apps/console
+    description: "Changes dashboard, approval action, evidence/diff viewer, workset board, gate runner panel"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - change-read-model
+      - gate-runners
+    agent: ""
+    status: pending
+
+  - id: packaging-and-docs
+    repository_id: openspec-shared-control-for-discovered-services
+    module_id: README.md
+    description: "Local build/run, structured action logging, console runbook + view/controller boundary docs (macOS signing/notarization deferred)"
+    worktree: ""
+    branch: ""
+    depends_on:
+      - ui-views
+    agent: ""
+    status: pending
+
+caraoke_workspace:
+  reachable_via: "unchanged control scripts (tools/router/create-worktree.sh, tools/bootstrap-code-repo.sh)"
+  modified: false
