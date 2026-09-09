@@ -58,15 +58,25 @@ script, the console inherits it for free.
 "richer" UI — creates two sources of truth that drift; violates DRY and the
 control plane's authority model.
 
-### Frontend framework — Vite + React by default; Next.js only to reuse `@mde-ui`
-**Decision (pending confirmation — see open_questions)**: Because Tauri serves
-static assets, Next.js would run as `output: 'export'` (SSG/SPA) with its core
-strengths — SSR, server components, route handlers — unused dead weight. Default
-to **Vite + React** for simpler config and identical result. Choose **Next.js
-static export only if** reusing mobile.de's existing Next.js components /
-`@mde-ui` design system is an explicit driver — that is the one legitimate reason.
-**Alternative rejected**: Next.js "because it's our stack" — habit, not a
-technical driver, in a static-export desktop context.
+### Frontend framework — Vite + React + TypeScript
+**Decision**: Build the frontend with **Vite + React + TypeScript**, served by
+Tauri's asset protocol. Because Tauri serves the frontend as static assets, a
+server-side framework's core strengths (SSR, RSC, route handlers, middleware)
+are dead weight here; Vite delivers the identical static-asset result with far
+less config and lower maintenance. Node.js is a build-time-only dependency (Vite
+tooling); nothing Node-related ships in the Tauri bundle.
+**Chosen stack**:
+- **Components/styling**: shadcn/ui + Tailwind — component source is vendored
+  into the repo (no library lock-in or upgrade churn), Radix gives accessibility.
+- **Data from Rust**: TanStack Query wraps every `invoke()`; a Tauri event from
+  the `notify` watcher invalidates queries so the UI updates live.
+- **UI state**: Zustand (selection, panel open/closed) — not server data.
+- **Tables/boards**: TanStack Table (headless, styled with shadcn).
+- **Routing**: React Router.
+**Alternative rejected**: Next.js static export — its server half is unusable
+under Tauri, so it adds framework weight and config for no runtime benefit. Only
+revisit if reusing mobile.de's Next.js components / `@mde-ui` becomes a hard
+driver.
 
 ### Rust core stays thin — orchestration and marshalling only
 **Decision**: `#[tauri::command]` functions (a) parse change packages with
@@ -103,8 +113,10 @@ the agent does. It is opt-in per action, not a background daemon.
 - [Command-injection / over-broad ACL] → One runner per named script with
   validated args; Tauri v2 capabilities grant only those commands; no generic
   shell scope.
-- [Next.js static-export mismatch] → Default to Vite+React; adopt Next.js only
-  for explicit `@mde-ui` reuse. Decide before scaffolding to avoid rework.
+- [Frontend framework rework] → Vite + React + TS is the committed decision;
+  Next.js is rejected unless `@mde-ui` reuse becomes a hard driver. shadcn/ui
+  components are vendored per view so the stack grows incrementally without an
+  upgrade-churn dependency.
 - [macOS signing / notarization] → Distribution to the team needs an Apple
   Developer identity + notarization; treat as a packaging precondition, deferred
   from the local-build MVP.

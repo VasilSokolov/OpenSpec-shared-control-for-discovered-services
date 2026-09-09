@@ -1,0 +1,10 @@
+# frontend
+node_modules/
+dist/
+
+# rust / tauri
+src-tauri/target/
+src-tauri/gen/
+
+# tauri-generated icons (run `yarn tauri icon <logo.png>` locally)
+src-tauri/icons/

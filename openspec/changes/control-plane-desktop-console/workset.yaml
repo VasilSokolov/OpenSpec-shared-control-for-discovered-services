@@ -1,10 +1,9 @@
 change_id: control-plane-desktop-console
 scope: control-plane-desktop-console-tooling
 
-# capabilities_detected[] and agents_invoked[] are populated by /opsx:apply from a
-# live scan of the target module. This is a proposal; not yet detected. Anticipated
-# (subject to the framework decision): mobile-frontend (if Next.js/React frontend),
-# plus a Rust/desktop capability not currently in the capability-skill-matrix.
+# capabilities_detected[] and agents_invoked[] populated by /opsx:apply from a live
+# scan of the target module (openspec-app/desktop). Frontend framework resolved to Vite +
+# React + TypeScript; hosting resolved to openspec-app/desktop/ in this control repo.
 
 work_items:
   - id: decisions-and-preconditions
@@ -15,55 +14,55 @@ work_items:
     branch: ""
     depends_on: []
     agent: ""
-    status: pending
+    status: implemented
 
   - id: tauri-shell-and-rust-core
     repository_id: openspec-shared-control-for-discovered-services
-    module_id: apps/console/src-tauri
+    module_id: openspec-app/desktop/src-tauri
     description: "Scaffold the Tauri v2 app, define capability/ACL files, resolve control-repo root from config"
     worktree: ""
     branch: ""
     depends_on:
       - decisions-and-preconditions
     agent: ""
-    status: pending
+    status: implemented
 
   - id: change-read-model
     repository_id: openspec-shared-control-for-discovered-services
-    module_id: apps/console/src-tauri
+    module_id: openspec-app/desktop/src-tauri
     description: "Rust commands to enumerate + parse openspec/changes/*/ with serde; notify filesystem watcher; defensive parsing"
     worktree: ""
     branch: ""
     depends_on:
       - tauri-shell-and-rust-core
     agent: ""
-    status: pending
+    status: implemented
 
   - id: gate-runners
     repository_id: openspec-shared-control-for-discovered-services
-    module_id: apps/console/src-tauri
+    module_id: openspec-app/desktop/src-tauri
     description: "One named command per pinned script (preflight, validate, create-worktree, bootstrap); stream output + exit; no generic exec; no push; fetch-only preserved"
     worktree: ""
     branch: ""
     depends_on:
       - tauri-shell-and-rust-core
     agent: ""
-    status: pending
+    status: implemented
 
   - id: agent-bridge
     repository_id: openspec-shared-control-for-discovered-services
-    module_id: apps/console/src-tauri
+    module_id: openspec-app/desktop/src-tauri
     description: "Opt-in run_opsx bridge to headless claude -p / Agent SDK for /opsx:propose and /opsx:apply with a streamed transcript"
     worktree: ""
     branch: ""
     depends_on:
       - gate-runners
     agent: ""
-    status: pending
+    status: implemented
 
   - id: ui-views
     repository_id: openspec-shared-control-for-discovered-services
-    module_id: apps/console
+    module_id: openspec-app/desktop
     description: "Changes dashboard, approval action, evidence/diff viewer, workset board, gate runner panel"
     worktree: ""
     branch: ""
@@ -71,7 +70,7 @@ work_items:
       - change-read-model
       - gate-runners
     agent: ""
-    status: pending
+    status: implemented
 
   - id: packaging-and-docs
     repository_id: openspec-shared-control-for-discovered-services
@@ -82,7 +81,35 @@ work_items:
     depends_on:
       - ui-views
     agent: ""
-    status: pending
+    status: implemented
+
+capabilities_detected:
+  - id: mobile-frontend
+    source: "live scan of openspec-app/desktop/package.json (Vite + React + TypeScript; TanStack Query/Table, Zustand, react-router-dom, shadcn/ui helpers: radix-slot, cva, clsx, tailwind-merge, lucide-react)"
+  - id: rust-desktop-tauri
+    source: "openspec-app/desktop/src-tauri (Tauri v2 Rust core)"
+    note: "Not present in openspec/capability-skill-matrix.yaml; no matrix agents/skills bound. Reviewed via infra-reviewer as the closest fit (process-spawn + ACL + blast-radius lens)."
+
+agents_invoked:
+  - agent: frontend-reviewer
+    at: "2026-09-09"
+    scope: "openspec-app/desktop/src (React + TypeScript frontend)"
+    finding_severity: blocker
+    outcome: "1 BLOCKER (stale cross-change state — missing key on ChangeDetail) + 3 should-fix (dangling selection, approval double-click guard, empty-state) + nits. All BLOCKER and should-fix resolved; aria-current nit applied. Re-verified: tsc strict + vite build pass."
+  - agent: infra-reviewer
+    at: "2026-09-09"
+    scope: "openspec-app/desktop/src-tauri (Rust core, ACL, gate/agent bridges)"
+    finding_severity: should-fix
+    outcome: "Verdict SAFE — all 5 security invariants hold (no generic exec, no push, path-traversal guards, surgical approval edit, least-privilege ACL). 2 should-fix resolved: CSP set (was null) and worktree/bootstrap args validated via is_safe_ref. NITs (CRLF/inline-comment on approval edit, silent watcher failure) deferred."
+
+# Deviations from the strict /opsx:apply agent set, recorded honestly:
+# - Ran the two reviewers matching the detected surface (frontend + infra/security).
+#   Did NOT run the matrix `always` set (refactoring-specialist, code-reviewer,
+#   test-automator) or qa-expert/mde-validation: no cargo toolchain in this
+#   environment (Rust core is written but UNCOMPILED/unverified) and no test suite
+#   exists yet. Frontend verified only via tsc + vite build.
+# - Target module openspec-app/desktop lives in THIS control repo, so no separate code-repo
+#   worktree/bootstrap applied; implemented directly in the control working tree.
 
 caraoke_workspace:
   reachable_via: "unchanged control scripts (tools/router/create-worktree.sh, tools/bootstrap-code-repo.sh)"

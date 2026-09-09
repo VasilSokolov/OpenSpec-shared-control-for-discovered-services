@@ -34,7 +34,7 @@ acceptance_criteria:
 
 scope:
   in:
-    - Tauri v2 desktop shell and thin Rust core (apps/console/)
+    - Tauri v2 desktop shell and thin Rust core (openspec-app/desktop/)
     - Read model over openspec/changes/*/ with a filesystem watcher
     - Gate runners: one named command per pinned script (preflight, validate, create-worktree, bootstrap)
     - Agent bridge: opt-in headless /opsx:* run streamed to the UI

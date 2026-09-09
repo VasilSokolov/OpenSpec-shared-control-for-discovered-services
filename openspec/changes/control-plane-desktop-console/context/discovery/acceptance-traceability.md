@@ -21,7 +21,7 @@ approve the console and the framework/hosting decisions.
 | Console is a view/controller only; no governance logic in Rust | design.md — "The console is a view/controller, never a second source of truth" | 0.4, 9.1 | 9.1–9.2 review: scripts/schema/opsx unchanged | Pending approval |
 | No generic exec / no push; fetch-only preflight; ACL grants only named commands | design.md — "Safety rails carried into the Rust boundary" + ACL | 1.2, 3.5, 8.3–8.4 | 8.3 denied API fails closed; 8.4 no destructive op reachable | Pending approval |
 | Frontend framework decision (Vite+React default; Next.js only for @mde-ui) | design.md — "Frontend framework" | 0.2, 1.1 | Decision recorded in approval.yaml before scaffolding | Pending decision |
-| Hosting decision (apps/console/ in control repo vs separate repo) | design.md — Context / proposal Impact | 0.3 | Decision recorded in approval.yaml | Pending decision |
+| Hosting decision (openspec-app/desktop/ in control repo vs separate repo) | design.md — Context / proposal Impact | 0.3 | Decision recorded in approval.yaml | Pending decision |
 
 ## Blockers
 

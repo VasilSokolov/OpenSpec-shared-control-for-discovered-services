@@ -29,7 +29,7 @@ unapprovable (see `approval.yaml`) until the framework and hosting decisions in
 
 ## What Changes
 
-- **Desktop shell (Tauri v2)**: a new `apps/console/` module — a Tauri v2 app
+- **Desktop shell (Tauri v2)**: a new `openspec-app/desktop/` module — a Tauri v2 app
   whose Rust core is a thin orchestration layer and whose frontend is a web UI.
   Distributed as a signed, cross-platform native binary (not Electron).
 - **Read model over change packages**: Rust `#[tauri::command]` functions
@@ -66,9 +66,10 @@ unapprovable (see `approval.yaml`) until the framework and hosting decisions in
 
 ## Impact
 
-- `apps/console/` (new) — Tauri v2 project: `src-tauri/` (Rust core, ACL
-  capabilities, gate + agent bridges, change read model) and the frontend
-  (framework decision pending — see `design.md`).
+- `openspec-app/desktop/` (new) — Tauri v2 project: `src-tauri/` (Rust core, ACL
+  capabilities, gate + agent bridges, change read model) and a Vite + React +
+  TypeScript frontend (shadcn/ui + Tailwind, TanStack Query/Table, Zustand,
+  React Router — see `design.md`). Node.js is a build-time-only dependency.
 - `openspec/project.md` / `README.md` — document the console, the
   view/controller boundary, and the "single source of truth is the files +
   scripts" rule.

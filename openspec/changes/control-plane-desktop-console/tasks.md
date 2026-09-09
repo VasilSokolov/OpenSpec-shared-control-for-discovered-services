@@ -3,7 +3,7 @@
 - [ ] 0.1 Confirm Tauri v2 desktop app (vs VS Code extension / TUI / web app).
 - [ ] 0.2 Confirm the frontend framework: Vite + React (default) vs Next.js
   static export (only if `@mde-ui` / mobile.de component reuse is the driver).
-- [ ] 0.3 Confirm hosting: new `apps/console/` module in this control repo vs a
+- [ ] 0.3 Confirm hosting: new `openspec-app/desktop/` module in this control repo vs a
   separate repository.
 - [ ] 0.4 Record the view/controller boundary: no governance logic reimplemented
   in Rust; YAML + scripts stay authoritative.
@@ -12,8 +12,9 @@
 
 ## 1. Tauri v2 shell + Rust core
 
-- [ ] 1.1 Scaffold `apps/console/` with `src-tauri/` (Rust) and the chosen
-  frontend, pinned to Tauri v2.
+- [ ] 1.1 Scaffold `openspec-app/desktop/` with `src-tauri/` (Rust) and the chosen
+  frontend (Vite + React + TypeScript; TanStack Query/Table, Zustand, React Router,
+  shadcn/ui + Tailwind added incrementally), pinned to Tauri v2.
 - [ ] 1.2 Define the Tauri v2 capability/ACL files granting only the named
   commands below; deny broad `shell`/`fs` scopes.
 - [ ] 1.3 Resolve the control-repo root from the app (config/env), not from a

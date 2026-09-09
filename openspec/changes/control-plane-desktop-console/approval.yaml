@@ -25,12 +25,15 @@ decisions:
       (footprint, no ACL), localhost web app (no native FS/process, extra server),
       VS Code extension (couples to the editor host), and TUI (no evidence/diff viewer)."
   - id: frontend-framework
-    resolution: "Vite + React + TypeScript. Next.js static export rejected: SSR/RSC/
-      route-handlers are dead weight under Tauri's static-asset model. Switchable
-      later only if @mde-ui / mobile.de component reuse becomes an explicit driver."
+    resolution: "Vite + React + TypeScript, with a committed component stack:
+      shadcn/ui + Tailwind (vendored components), TanStack Query over invoke(),
+      Zustand for UI state, TanStack Table, and React Router. Next.js static export
+      rejected: SSR/RSC/route-handlers are dead weight under Tauri's static-asset
+      model. Switchable later only if @mde-ui / mobile.de component reuse becomes
+      an explicit driver."
   - id: hosting
-    resolution: "New apps/console/ module in this control repo, so the console stays
-      in lockstep with the change-package schema and script paths. Split into its own
-      repository only if it grows an independent release cadence."
+    resolution: "New openspec-app/desktop/ module in this control repo, so the console
+      stays in lockstep with the change-package schema and script paths. Split into
+      its own repository only if it grows an independent release cadence."
   - id: product-name
     resolution: "OpsX Console — matches the /opsx:* command surface it drives."

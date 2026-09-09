@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "OpsX Console runs with the core window permission only. No shell, fs, or http plugin scope is granted: every native action (reading change packages, running the pinned gate scripts, the agent bridge) goes through the app's own named #[tauri::command] functions, which invoke fixed script paths with validated arguments. There is deliberately no generic command-execution capability.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

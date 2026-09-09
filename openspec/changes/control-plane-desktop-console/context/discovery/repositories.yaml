@@ -7,14 +7,14 @@ repositories:
     url: https://github.com/VasilSokolov/OpenSpec-shared-control-for-discovered-services
     role: primary
     languages: [rust, typescript, bash, yaml]
-    build: "cd apps/console && cargo tauri build   # (module created by this change)"
+    build: "cd openspec-app/desktop && cargo tauri build   # (module created by this change)"
     test: "tools/validate-change-package.sh --change <change-dir>"
     affected_modules:
-      - path: apps/console
+      - path: openspec-app/desktop
         description: New Tauri v2 desktop app (src-tauri Rust core + web frontend)
-      - path: apps/console/src-tauri
+      - path: openspec-app/desktop/src-tauri
         description: Thin Rust core — change read model, gate runners, agent bridge, ACL capabilities
-      - path: apps/console/src-tauri/capabilities
+      - path: openspec-app/desktop/src-tauri/capabilities
         description: Tauri v2 capability/ACL files granting only the named commands
       - path: openspec/project.md
         description: Document the console and the view/controller boundary
