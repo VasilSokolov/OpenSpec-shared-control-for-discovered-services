@@ -1,0 +1,21 @@
+[package]
+name = "opsx-web-server"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.77"
+description = "Local HTTP server over the file-based OpsX control plane. Exposes the read model plus the safe gates (browse, preflight, validate) only — no approval writes, worktree/bootstrap, or agent runs over HTTP."
+authors = ["Vasil Sokolov"]
+
+[[bin]]
+name = "opsx-web-server"
+path = "src/main.rs"
+
+[dependencies]
+opsx-core = { path = "../../crates/opsx-core" }
+axum = "0.7"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tower-http = { version = "0.5", features = ["trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

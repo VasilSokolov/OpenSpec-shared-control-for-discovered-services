@@ -1,0 +1,6 @@
+# Rust build output (crates/, desktop/src-tauri/, web-app/server/)
+**/target/
+
+# Node build output
+**/node_modules/
+**/dist/

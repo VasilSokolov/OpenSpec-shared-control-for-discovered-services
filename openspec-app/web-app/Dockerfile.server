@@ -1,0 +1,31 @@
+# Build context is the openspec-app/ directory (parent of crates/ and web-app/),
+# because the server crate depends on ../../crates/opsx-core via a path dependency.
+# We deliberately do NOT use a Cargo workspace, so this image never has to compile
+# the Tauri desktop app.
+
+FROM rust:1.82-slim-bookworm AS build
+WORKDIR /build
+
+# Copy only the two crates the server needs.
+COPY crates/opsx-core ./crates/opsx-core
+COPY web-app/server ./web-app/server
+
+WORKDIR /build/web-app/server
+RUN cargo build --release --bin opsx-web-server
+
+FROM debian:bookworm-slim AS runtime
+# The gate scripts shell out to `bash` and `git` (git-preflight.sh runs a
+# fetch-only `git fetch`). ca-certificates lets HTTPS git remotes work if creds
+# are provided at runtime.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /build/web-app/server/target/release/opsx-web-server /usr/local/bin/opsx-web-server
+
+# The control repository is mounted here at runtime (read-only recommended).
+ENV OPSX_CONTROL_ROOT=/workspace
+ENV OPSX_WEB_ADDR=0.0.0.0:8787
+WORKDIR /workspace
+EXPOSE 8787
+ENTRYPOINT ["opsx-web-server"]

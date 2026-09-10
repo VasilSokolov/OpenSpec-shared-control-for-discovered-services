@@ -1,0 +1,28 @@
+services:
+  server:
+    build:
+      # openspec-app/ so the Rust build can see crates/opsx-core.
+      context: ..
+      dockerfile: web-app/Dockerfile.server
+    environment:
+      OPSX_CONTROL_ROOT: /workspace
+      OPSX_WEB_ADDR: 0.0.0.0:8787
+    volumes:
+      # Mount the control repository. Change the host path if the repo lives
+      # elsewhere. The API is read + safe gates only (browse, evidence,
+      # preflight, validate). It is NOT mounted :ro because the fetch-only
+      # preflight (`git fetch`) writes to .git/; it still never touches the
+      # working tree, and there is no approval/worktree/bootstrap/agent surface.
+      - ../..:/workspace
+    # Bind to loopback on the host only — the HTTP surface is never LAN-exposed.
+    ports:
+      - "127.0.0.1:8787:8787"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    depends_on:
+      - server
+    ports:
+      - "127.0.0.1:8080:80"

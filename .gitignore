@@ -6,3 +6,11 @@
 *.local.json
 secrets/
 credentials/
+
+# Node build output
+node_modules/
+**/node_modules/
+**/dist/
+
+# Rust build output
+**/target/

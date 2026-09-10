@@ -1,0 +1,12 @@
+server:
+  # Loopback + fixed port by default. In docker-compose we set SERVER_ADDRESS=0.0.0.0
+  # (Spring relaxed binding) and map the host port to 127.0.0.1 only, so the
+  # surface is never LAN-exposed.
+  address: 127.0.0.1
+  port: 8787
+
+spring:
+  application:
+    name: opsx-web
+  thymeleaf:
+    cache: false

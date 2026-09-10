@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpsX Web Console</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+</head>
+<body class="bg-body-tertiary">
+<header class="navbar navbar-expand bg-dark border-bottom px-3" data-bs-theme="dark">
+    <span class="navbar-brand mb-0 h1">OpsX Web Console</span>
+    <span class="navbar-text small text-truncate ms-2 flex-grow-1" th:text="${controlRootPath}">root</span>
+    <button class="btn btn-primary btn-sm" type="button"
+            hx-post="/preflight" hx-target="#gate-result" hx-swap="innerHTML"
+            hx-indicator="#preflight-spin">
+        Run preflight
+        <span id="preflight-spin" class="htmx-indicator spinner-border spinner-border-sm"></span>
+    </button>
+</header>
+
+<main class="container-fluid p-4">
+    <div id="gate-result"></div>
+    <div id="board-notice"></div>
+    <p class="text-muted small mb-3">Drag a change between <strong>Proposed</strong> and <strong>Approved</strong> to
+        set its approval. Dragging into <strong>Apply</strong> or <strong>Archived</strong> — or the
+        <strong>Copy apply</strong> / <strong>Copy archive</strong> buttons on any card — copies the exact
+        <code>/opsx:apply</code> / <code>/opsx:archive</code> command to run in Claude Code or the terminal.
+        Applying and archiving never run here.</p>
+    <div th:replace="~{fragments :: board}"></div>
+</main>
+
+<script th:src="@{/webjars/htmx.org/2.0.3/dist/htmx.min.js}"></script>
+<script th:src="@{/webjars/sortablejs/1.15.6/Sortable.min.js}"></script>
+<script>
+    function initBoard() {
+        document.querySelectorAll('.board-lane').forEach(function (lane) {
+            if (lane._sortable) return;
+            // Copy lanes (Apply/Archived) accept drops but you cannot drag their
+            // cards out (pull:false) and they never sort; the two active lanes are
+            // full drag sources/targets for the approval toggle.
+            var copyLane = lane.getAttribute('data-copy-lane') === 'true';
+            lane._sortable = Sortable.create(lane, {
+                group: { name: 'board', pull: copyLane ? false : true, put: true },
+                sort: !copyLane,
+                draggable: '.change-card',
+                animation: 150,
+                onEnd: function (evt) {
+                    var to = evt.to.getAttribute('data-status');
+                    var from = evt.from.getAttribute('data-status');
+                    if (to === from) return;
+                    var id = evt.item.getAttribute('data-id');
+                    if (evt.to.getAttribute('data-copy-lane') === 'true') {
+                        copyCommand('/opsx:' + (to === 'apply' ? 'apply' : 'archive') + ' ' + id);
+                        reloadBoard(); // no server state for these lanes — snap back to truth
+                        return;
+                    }
+                    htmx.ajax('POST', '/changes/' + encodeURIComponent(id) + '/move',
+                        { values: { to: to }, target: '#board', swap: 'outerHTML' });
+                }
+            });
+        });
+    }
+
+    function reloadBoard() {
+        htmx.ajax('GET', '/board', { target: '#board', swap: 'outerHTML' });
+    }
+
+    function copyCommand(cmd) {
+        navigator.clipboard.writeText(cmd).then(function () { showNotice(cmd); });
+    }
+
+    // textContent (never innerHTML) for the command, so a change id can never inject markup.
+    function showNotice(cmd) {
+        var n = document.getElementById('board-notice');
+        if (!n) return;
+        var div = document.createElement('div');
+        div.className = 'alert alert-info d-flex align-items-center gap-2 mb-3';
+        div.appendChild(document.createTextNode('Copied '));
+        var code = document.createElement('code');
+        code.textContent = cmd;
+        div.appendChild(code);
+        div.appendChild(document.createTextNode(' to the clipboard — run it in Claude Code or the terminal.'));
+        n.replaceChildren(div);
+        setTimeout(function () { if (n.firstChild === div) n.replaceChildren(); }, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initBoard);
+    // #board is re-rendered (outerHTML) after every move; re-attach Sortable to the fresh lanes.
+    document.body.addEventListener('htmx:afterSwap', initBoard);
+
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.copy-cmd');
+        if (!btn) return;
+        var cmd = btn.getAttribute('data-copy');
+        navigator.clipboard.writeText(cmd).then(function () {
+            var original = btn.textContent;
+            btn.textContent = 'Copied!';
+            showNotice(cmd);
+            setTimeout(function () { btn.textContent = original; }, 1200);
+        });
+    });
+</script>
+</body>
+</html>

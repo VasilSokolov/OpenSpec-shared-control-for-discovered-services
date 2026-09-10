@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${board.name()} + ' — Board'">Board</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
+    <style>
+        /* Jira-style dark board. Reusable template: the look is driven entirely by
+           the CSS classes the model returns (type/priority/chip/avatar). */
+        body { background: #1d2125; color: #b6c2cf; }
+
+        .board-scroll { overflow-x: auto; padding-bottom: .5rem; }
+        .board-columns { display: flex; gap: .75rem; align-items: flex-start; min-width: max-content; }
+
+        .kb-col { width: 272px; flex: 0 0 272px; }
+        .kb-col-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: .5rem .75rem; border-radius: 4px 4px 0 0;
+            font-size: .75rem; letter-spacing: .04em; text-transform: uppercase;
+            color: #9fadbc; font-weight: 600;
+        }
+        .kb-col-head.accent { background: #42221f; color: #f8b0a6; }
+        .kb-count {
+            background: #2c333a; color: #9fadbc; border-radius: 3px;
+            padding: 0 .4rem; font-size: .72rem; font-weight: 600;
+        }
+        .kb-col-head.accent .kb-count { background: #5c2f2a; color: #f8b0a6; }
+
+        .kb-lane {
+            background: #22272b; border-radius: 0 0 4px 4px; padding: .5rem;
+            min-height: 60px; display: flex; flex-direction: column; gap: .5rem;
+        }
+
+        .kb-card {
+            background: #282e33; border: 1px solid #2c333a; border-radius: 4px;
+            padding: .625rem .75rem; cursor: grab; box-shadow: 0 1px 0 rgba(0,0,0,.3);
+        }
+        .kb-card:hover { border-color: #4c9aff; }
+        .kb-card.sortable-ghost { opacity: .4; }
+        .kb-title { font-size: .875rem; line-height: 1.3; color: #dee4ea; margin-bottom: .5rem; }
+
+        .kb-chip {
+            display: inline-flex; align-items: center; gap: .35rem; max-width: 100%;
+            border: 1px solid #3a434b; border-radius: 3px; padding: .1rem .4rem;
+            font-size: .72rem; color: #9fadbc; margin-bottom: .5rem;
+        }
+        .kb-chip .swatch { width: 12px; height: 12px; border-radius: 2px; flex: 0 0 12px; }
+        .kb-chip .chip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chip-grey   { background: #6b7684; }
+        .chip-red    { background: #e2483d; }
+        .chip-orange { background: #e2a44d; }
+        .chip-blue   { background: #4f93e0; }
+        .chip-purple { background: #8f7ee7; }
+        .chip-green  { background: #4bce97; }
+
+        .kb-mid { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+
+        .kb-foot { display: flex; align-items: center; justify-content: space-between; }
+        .kb-key-wrap { display: inline-flex; align-items: center; gap: .35rem; }
+        .kb-key { font-size: .78rem; color: #9fadbc; letter-spacing: .01em; }
+        .kb-key.done { text-decoration: line-through; opacity: .6; }
+
+        /* Issue-type icon */
+        .kb-type {
+            width: 16px; height: 16px; border-radius: 3px; flex: 0 0 16px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; line-height: 1; color: #fff; font-weight: 700;
+        }
+        .type-epic    { background: #904ee2; }
+        .type-story   { background: #8f7ee7; }
+        .type-task    { background: #4bade8; }
+        .type-subtask { background: #4f93e0; }
+        .type-bug     { background: #e2483d; }
+
+        /* Priority chevrons */
+        .kb-prio { font-size: .8rem; font-weight: 700; letter-spacing: -2px; }
+        .prio-highest, .prio-high { color: #e2483d; }
+        .prio-medium { color: #e2a44d; }
+        .prio-low, .prio-lowest { color: #4f93e0; }
+
+        /* Development (branch/PR) indicator */
+        .kb-dev { color: #6b7684; font-size: .85rem; }
+
+        /* Avatars */
+        .kb-avatar {
+            width: 24px; height: 24px; border-radius: 50%; flex: 0 0 24px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: .68rem; font-weight: 700; color: #fff;
+        }
+        .avatar-red   { background: #d04437; }
+        .avatar-blue  { background: #4f93e0; }
+        .avatar-green { background: #22a06b; }
+        .kb-avatar.unassigned { background: #2c333a; color: #6b7684; border: 1px dashed #4a545e; }
+
+        .board-title { color: #dee4ea; }
+        .board-title .count { color: #9fadbc; font-weight: 400; }
+    </style>
+</head>
+<body>
+<header class="navbar navbar-expand bg-dark border-bottom px-3" data-bs-theme="dark">
+    <span class="navbar-brand mb-0 h1">OpsX Board</span>
+    <span class="navbar-text small ms-2">Jira-style Kanban template</span>
+</header>
+
+<main class="container-fluid p-4">
+    <h5 class="board-title mb-3">
+        <span th:text="${board.name()}">Board</span>
+        <span class="count" th:text="'(' + ${board.workItemCount()} + ' work items)'">(0 work items)</span>
+    </h5>
+    <div th:replace="~{kanban-fragments :: board}"></div>
+</main>
+
+<script th:src="@{/webjars/sortablejs/1.15.6/Sortable.min.js}"></script>
+<script>
+    // Client-side only: drag cards between lanes for the template demo. Nothing is
+    // persisted — reload restores the server-rendered layout.
+    document.querySelectorAll('.kb-lane').forEach(function (lane) {
+        Sortable.create(lane, { group: 'kanban', draggable: '.kb-card', animation: 150 });
+    });
+</script>
+</body>
+</html>

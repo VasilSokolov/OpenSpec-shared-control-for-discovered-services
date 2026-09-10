@@ -1,0 +1,19 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      OPSX_CONTROL_ROOT: /workspace
+      SERVER_ADDRESS: 0.0.0.0
+      SERVER_PORT: "8787"
+    volumes:
+      # Mount the control repository (this repo's root is two levels up). The app
+      # is read + safe gates only (browse, evidence, preflight, validate). It is
+      # NOT mounted :ro because the fetch-only preflight (`git fetch`) writes to
+      # .git/; it still never touches the working tree, and there is no
+      # approval/worktree/bootstrap/agent surface.
+      - ../..:/workspace
+    # Loopback on the host only — the HTTP surface is never LAN-exposed.
+    ports:
+      - "127.0.0.1:8787:8787"

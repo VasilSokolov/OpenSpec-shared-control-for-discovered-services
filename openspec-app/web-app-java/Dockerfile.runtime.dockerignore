@@ -1,0 +1,5 @@
+# Runtime image only needs the pre-built jar. Exclude everything, then re-include
+# target/ (the default .dockerignore excludes it, since the source build doesn't
+# need it).
+*
+!target

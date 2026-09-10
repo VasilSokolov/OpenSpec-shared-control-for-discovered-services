@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Approval badge + toggle button. Swapped in place (outerHTML) after approve/
+     unapprove. Expects a `change` variable in scope. Archived changes show the
+     badge only. -->
+<span th:fragment="approvalControl" th:id="'approval-' + ${change.id()}"
+      class="d-inline-flex align-items-center gap-2">
+    <span class="badge rounded-pill"
+          th:classappend="${change.approved()} ? 'text-bg-success' : 'text-bg-secondary'"
+          th:text="${change.approval()}">approval</span>
+    <th:block th:unless="${change.archived()}">
+        <button th:if="${change.approved()}" type="button" class="btn btn-outline-warning btn-sm py-0"
+                th:attr="hx-post=@{'/changes/' + ${change.id()} + '/unapprove'},hx-target='#approval-' + ${change.id()}"
+                hx-swap="outerHTML">Unapprove</button>
+        <button th:unless="${change.approved()}" type="button" class="btn btn-success btn-sm py-0"
+                th:attr="hx-post=@{'/changes/' + ${change.id()} + '/approve'},hx-target='#approval-' + ${change.id()}"
+                hx-swap="outerHTML">Approve</button>
+    </th:block>
+</span>
+
+<!-- Kanban board. Proposed and Approved are draggable lanes (data-draggable):
+     dragging a card between them POSTs /changes/{id}/move, the safe approval
+     write. Apply and Archived are copy-only lanes (data-copy-lane): dropping a
+     card there copies the matching /opsx:apply|archive command to the clipboard
+     and the board re-renders to the server's true state — nothing runs here and
+     no state is mutated. The whole #board is re-rendered after a move so the
+     server decides the final lane. -->
+<div th:fragment="board" id="board" class="row g-3">
+    <div class="col-lg-3 col-md-6">
+        <div class="card h-100 bg-white">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold">Proposed</span>
+                <span class="badge rounded-pill text-bg-secondary" th:text="${proposed.size()}">0</span>
+            </div>
+            <div class="card-body board-lane p-2" data-status="proposed" data-draggable="true">
+                <th:block th:each="change : ${proposed}">
+                    <div th:replace="~{fragments :: changeCard}"></div>
+                </th:block>
+                <p th:if="${proposed.isEmpty()}" class="text-muted small mb-0 board-empty">Drag a card here to unapprove.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card h-100 bg-white">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold text-success">Approved</span>
+                <span class="badge rounded-pill text-bg-success" th:text="${approved.size()}">0</span>
+            </div>
+            <div class="card-body board-lane p-2" data-status="approved" data-draggable="true">
+                <th:block th:each="change : ${approved}">
+                    <div th:replace="~{fragments :: changeCard}"></div>
+                </th:block>
+                <p th:if="${approved.isEmpty()}" class="text-muted small mb-0 board-empty">Drag a card here to approve.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card h-100 bg-white">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold text-primary">Apply</span>
+                <span class="badge rounded-pill text-bg-primary">copy</span>
+            </div>
+            <div class="card-body board-lane p-2" data-status="apply" data-copy-lane="true">
+                <p class="text-muted small mb-0 board-empty">Drag a card here to copy its
+                    <code>/opsx:apply</code> command. Nothing runs on the server.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card h-100 bg-body-tertiary">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold text-muted">Archived</span>
+                <span class="badge rounded-pill text-bg-dark" th:text="${archived.size()}">0</span>
+            </div>
+            <div class="card-body board-lane p-2" data-status="archived" data-copy-lane="true">
+                <th:block th:each="change : ${archived}">
+                    <div th:replace="~{fragments :: changeCard}"></div>
+                </th:block>
+                <p th:if="${archived.isEmpty()}" class="text-muted small mb-0">Drag a card here to copy its
+                    <code>/opsx:archive</code> command.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- One board card. Draggable only inside the two active lanes (archived lane has
+     no Sortable). Approved, non-archived cards expose "Copy apply" which copies the
+     exact /opsx:apply command to the clipboard — the console never runs apply. -->
+<div th:fragment="changeCard" class="change-card card mb-2 shadow-sm"
+     th:data-id="${change.id()}">
+    <div class="card-body p-2">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+            <a th:href="@{'/changes/' + ${change.id()}}" class="fw-semibold text-decoration-none text-break"
+               th:text="${change.id()}">id</a>
+            <span class="badge text-bg-light flex-shrink-0"
+                  th:text="${#strings.isEmpty(change.status()) ? 'unknown' : change.status()}">status</span>
+        </div>
+        <p class="small text-muted mb-1 text-truncate" th:if="${!#strings.isEmpty(change.title())}"
+           th:text="${change.title()}">title</p>
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <span class="small text-muted flex-shrink-0" th:text="${change.workItems().size()} + ' work items'">0</span>
+            <div th:unless="${change.archived()}" class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-primary py-0 copy-cmd"
+                        th:attr="data-copy='/opsx:apply ' + ${change.id()}">Copy apply</button>
+                <button type="button" class="btn btn-outline-secondary py-0 copy-cmd"
+                        th:attr="data-copy='/opsx:archive ' + ${change.id()}">Copy archive</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Result of a gate run (preflight / validate). -->
+<div th:fragment="commandResult" class="card mt-3"
+     th:classappend="${result.ok()} ? 'border-success' : 'border-danger'">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <code th:text="${result.command()}">script</code>
+        <span class="small text-muted" th:text="'exit ' + (${result.exitCode()} ?: '?')">exit</span>
+    </div>
+    <pre th:if="${!#strings.isEmpty(result.stdout())}" class="mb-0 p-2 small" th:text="${result.stdout()}"></pre>
+    <pre th:if="${!#strings.isEmpty(result.stderr())}" class="mb-0 p-2 small text-danger" th:text="${result.stderr()}"></pre>
+</div>
+
+<!-- One evidence file. -->
+<div th:fragment="evidenceView" class="card mt-3">
+    <div class="card-header py-2"><code th:text="${evidencePath}">path</code></div>
+    <pre class="mb-0 p-2 small" th:text="${evidenceContent}"></pre>
+</div>
+
+<!-- Error banner returned to HTMX targets. -->
+<div th:fragment="error" class="alert alert-danger mt-3 mb-0" role="alert" th:text="${error}">error</div>
+
+</body>
+</html>

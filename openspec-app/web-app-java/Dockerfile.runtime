@@ -1,0 +1,30 @@
+# Runtime-only image: runs a PRE-BUILT jar. Unlike ./Dockerfile (which compiles
+# from source in a Maven build stage), this copies target/opsx-web-0.1.0.jar
+# straight in — the fast path for iterating on an already-built artifact.
+#
+# Build the jar first (use Java 21 locally — Mockito can't mock under Java 25):
+#   export JAVA_HOME=<corretto-21>
+#   mvn clean package                 # -> target/opsx-web-0.1.0.jar
+# Then build + run this image (the paired Dockerfile.runtime.dockerignore keeps
+# target/ in the build context, which the default .dockerignore excludes):
+#   docker build -f Dockerfile.runtime -t opsx-web:runtime .
+#   docker run --rm -p 127.0.0.1:8787:8787 \
+#     -v "$(cd ../.. && pwd)":/workspace opsx-web:runtime
+FROM eclipse-temurin:21-jre
+
+# The gate scripts shell out to bash + git (git-preflight.sh runs a fetch-only
+# `git fetch`). bash ships in the base image; add git + certs so preflight and
+# validate work — the whole reason to prefer this over a bare JRE run.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY target/opsx-web-0.1.0.jar /app/opsx-web.jar
+
+# The control repository is mounted here at runtime.
+ENV OPSX_CONTROL_ROOT=/workspace
+# Bind all interfaces inside the container; the host maps the port to loopback only.
+ENV SERVER_ADDRESS=0.0.0.0
+WORKDIR /workspace
+EXPOSE 8787
+ENTRYPOINT ["java", "-jar", "/app/opsx-web.jar"]

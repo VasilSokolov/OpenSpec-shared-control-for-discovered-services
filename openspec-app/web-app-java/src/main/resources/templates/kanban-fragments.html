@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Reusable board fragment. Hand it any KanbanBoard in a `board` model attribute.
+     Kept in a fragments-only file (never served as a page) so the `card` fragment
+     is only rendered when referenced, with a `card` variable in scope. -->
+<div th:fragment="board" class="board-scroll">
+    <div class="board-columns">
+        <div class="kb-col" th:each="col : ${board.columns()}">
+            <div class="kb-col-head" th:classappend="${col.accent()} ? 'accent'">
+                <span th:text="${col.name()}">Column</span>
+                <span class="kb-count" th:text="${col.cards().size()}">0</span>
+            </div>
+            <div class="kb-lane" th:data-status="${col.name()}">
+                <th:block th:each="card : ${col.cards()}">
+                    <div th:replace="~{kanban-fragments :: card}"></div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- One card. Expects a `card` variable in scope. -->
+<div th:fragment="card" class="kb-card" th:data-key="${card.key()}">
+    <div class="kb-title" th:text="${card.title()}">Card title</div>
+
+    <div class="kb-chip" th:if="${card.parentLabel() != null}">
+        <span class="swatch" th:classappend="${card.parentColorClass()}"></span>
+        <span class="chip-text" th:text="${card.parentLabel()}">Parent</span>
+    </div>
+
+    <div class="kb-mid">
+        <span class="kb-dev" th:if="${card.hasDevelopment()}" title="Development">&#9095;</span>
+        <span class="kb-prio" th:if="${card.priority() != null}"
+              th:classappend="${card.priority().cssClass()}"
+              th:text="${card.priority().glyph()}"
+              th:title="${card.priority().label()}">&#9099;</span>
+    </div>
+
+    <div class="kb-foot">
+        <span class="kb-key-wrap">
+            <span class="kb-type" th:classappend="${card.type().cssClass()}"
+                  th:text="${card.type().glyph()}" th:title="${card.type().label()}">&#9889;</span>
+            <span class="kb-key" th:classappend="${card.done()} ? 'done'" th:text="${card.key()}">KEY-1</span>
+        </span>
+        <span th:if="${card.assignee() != null}" class="kb-avatar"
+              th:classappend="${card.assignee().colorClass()}"
+              th:text="${card.assignee().initials()}"
+              th:title="${card.assignee().initials()}">AB</span>
+        <span th:if="${card.assignee() == null}" class="kb-avatar unassigned" title="Unassigned">&#9675;</span>
+    </div>
+</div>
+
+</body>
+</html>

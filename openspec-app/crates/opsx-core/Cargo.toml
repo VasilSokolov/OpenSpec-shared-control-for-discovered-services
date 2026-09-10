@@ -1,0 +1,11 @@
+[package]
+name = "opsx-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.77"
+description = "Shared OpsX core: file-based control-plane read model + pinned gate runners. No UI and no server — the Tauri desktop app and the axum web server both depend on this crate so the governance-facing logic has a single implementation."
+authors = ["Vasil Sokolov"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
