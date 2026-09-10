@@ -5,45 +5,15 @@
 //! filesystem for live updates. All governance logic stays in the YAML packages
 //! and the bash gates — this crate never reimplements it.
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tauri::{Emitter, Manager, State};
 
-mod agent;
-mod changes;
-mod gates;
-
-use changes::ChangeSummary;
-use gates::CommandOutput;
+use opsx_core::changes::ChangeSummary;
+use opsx_core::gates::CommandOutput;
+use opsx_core::{agent, changes, gates, resolve_control_root};
 
 pub struct AppState {
     pub control_root: PathBuf,
-}
-
-fn is_control_root(dir: &Path) -> bool {
-    dir.join("openspec/config.yaml").is_file() && dir.join("tools/git-preflight.sh").is_file()
-}
-
-/// Resolve the control repo from `OPSX_CONTROL_ROOT`, else by walking up from the
-/// current directory. Never hardcoded.
-fn resolve_control_root() -> Result<PathBuf, String> {
-    if let Ok(p) = std::env::var("OPSX_CONTROL_ROOT") {
-        let path = PathBuf::from(&p);
-        return if is_control_root(&path) {
-            Ok(path)
-        } else {
-            Err(format!("OPSX_CONTROL_ROOT is not a control repository: {p}"))
-        };
-    }
-    let mut dir = std::env::current_dir().map_err(|e| e.to_string())?;
-    loop {
-        if is_control_root(&dir) {
-            return Ok(dir);
-        }
-        if !dir.pop() {
-            break;
-        }
-    }
-    Err("could not locate the control repository; set OPSX_CONTROL_ROOT".to_string())
 }
 
 #[tauri::command]
